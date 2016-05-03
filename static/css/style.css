@@ -1,0 +1,124 @@
+body {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+}
+
+html {
+	height: 100%;
+	width: 100%;
+	margin: 0px;
+}
+
+#side_panel {
+	position: fixed;
+	height: 100%;
+	width: 400px;
+	background-color: #ff6666;
+	left: -320px;
+	-webkit-transition: all 0.5s ease-in-out;
+	z-index: 10;
+}
+
+#side_panel:hover {
+	left: 0px;
+}
+
+#menu_picture {
+	width: 70px;
+	float: right;
+	margin-right: 10px;
+}
+
+#sample_stuff {
+	display: none;
+}
+
+#about {
+	color: white;
+}
+
+#main {
+	background-color: #dbdbdb;
+	height: 100%;
+	width: calc(100% - 80px);
+	margin-left: 80px;
+}
+
+#tooltip {
+    display:none;
+    border-radius: 10px;
+    box-shadow: 3px 3px 3px 3px rgba(0, 0, 0, 0.2);
+    border: 2px solid #BBB;
+    width:150px;
+    height:50px;
+    position:absolute;
+    top:180px;
+    left:250px;
+    z-index:100;
+    text-align: center;
+    white-space: pre-line;
+    background-color: white;
+}
+
+#viz {
+    position: absolute;
+    top: 0px;
+    left: 400px;
+}
+
+div {
+    clear: both;
+}
+
+label {
+  width: 200px;
+  border-radius: 3px;
+  border: 1px solid #D1D3D4
+}
+
+input.radio:empty {
+    margin-left: -999px;
+}
+
+input.radio:empty ~ label {
+    position: relative;
+    float: left;
+    line-height: 2.5em;
+    text-indent: 3.25em;
+    margin-top: 2em;
+    cursor: pointer;
+}
+
+input.radio:empty ~ label:before {
+    position: absolute;
+    display: block;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    content: '';
+    width: 2.5em;
+    background: #D1D3D4;
+    border-radius: 3px 0 0 3px;
+}
+
+input.radio:hover:not(:checked) ~ label:before {
+    content:'\2714';
+    text-indent: .9em;
+    color: #C2C2C2;
+}
+
+input.radio:hover:not(:checked) ~ label {
+    color: #888;
+}
+
+input.radio:checked ~ label:before {
+    content:'\2714';
+    text-indent: .9em;
+    color: #9CE2AE;
+    background-color: #4DCB6D;
+}
+
+input.radio:checked ~ label {
+    color: #777;
+}
