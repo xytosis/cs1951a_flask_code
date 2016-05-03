@@ -1,4 +1,6 @@
-var margin = { top: 50, right: 0, bottom: 100, left: 30 },
+$(document).ready(function() {
+
+	var margin = { top: 50, right: 0, bottom: 100, left: 30 },
       width = 2000 - margin.left - margin.right,
       height = 800 - margin.top - margin.bottom
 
@@ -13,7 +15,7 @@ var margin = { top: 50, right: 0, bottom: 100, left: 30 },
 
 
 
-	$.getJSON("data/all.json", function(data) {
+	$.getJSON("/static/data/all.json", function(data) {
 
 		function getRandomColor() {
 		    var letters = '0123456789ABCDEF'.split('');
@@ -24,8 +26,8 @@ var margin = { top: 50, right: 0, bottom: 100, left: 30 },
 		    return color;
 		}
 
-		var w = 1500,
-		h = 1200;
+		var w = 1000,
+		h = 1000;
 		var canvas = d3.select("#viz")
 		      .append("svg:svg")
 		      .attr("width", w)
@@ -107,3 +109,12 @@ var margin = { top: 50, right: 0, bottom: 100, left: 30 },
 
 
 	});
+	
+
+
+	
+
+	
+
+
+});
