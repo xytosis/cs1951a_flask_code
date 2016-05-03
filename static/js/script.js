@@ -11,4 +11,22 @@ $(document).ready(function() {
 		}
 	});
 
+	$("#yaxis").change(function() {
+		var option = $(this).val();
+		if (option == "word_phrase") {
+			$("#inputarea").show();
+		} else {
+			$("#inputarea").hide();
+		}
+	})
+
+	$("#submitbutton").click(function() {
+		var xaxis = $("#xaxis").val();
+		var yaxis = $("#yaxis").val();
+		var text = $("#inputarea").val();
+		$.post("/freq_by_time", {"text": text}, function(data) {
+			alert(data);
+		});
+	})
+
 });
