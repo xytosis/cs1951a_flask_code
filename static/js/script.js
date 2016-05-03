@@ -1,5 +1,9 @@
 $(document).ready(function() {
 
+	function clear_canvas() {
+		$("#main_viz").html("");
+	}
+
 	$('#samplebox').click(function() {
     	if($("#samplebox").is(':checked')){
     		$("#main_stuff").hide()
@@ -21,11 +25,13 @@ $(document).ready(function() {
 	})
 
 	$("#submitbutton").click(function() {
+		clear_canvas();
 		var xaxis = $("#xaxis").val();
 		var yaxis = $("#yaxis").val();
 		var text = $("#inputarea").val();
 		$.post("/freq_by_time", {"text": text}, function(data) {
-			alert(data);
+
+			freq_to_time(JSON.parse(data));
 		});
 	})
 
