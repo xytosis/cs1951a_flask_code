@@ -44,7 +44,7 @@ function freq_to_time(data) {
 		.attr("width", 90)
 		.attr("height", 15)
 		.attr("x", function(d) {
-			return d[1]/30 + 80;
+			return d[1]/30 + 140;
 		})
 		.attr("y", function(d, i) {
 			return 20 * i + 33;
@@ -52,6 +52,6 @@ function freq_to_time(data) {
 		.text(function(d) {
 			return d[1]
 		})
-		.attr("fill", "white")
+		.attr("fill", "blue")
 		.attr("font-family", "sans-serif");
 }

@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template
 import json
+import urllib
 import urllib2
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -12,7 +13,7 @@ def hello():
 
 @application.route("/freq_by_time", methods=["POST"])
 def freq_by_time():
-    text = request.form["text"]
+    text = urllib.quote(request.form["text"])
     #response = json.loads(urllib2.urlopen("http://52.207.213.209:8983/solr/comments/select?q=body:\"" + text + "\"&rows=0&wt=json").read())
     #numFound = response["response"]["numFound"]
     ranges = []
