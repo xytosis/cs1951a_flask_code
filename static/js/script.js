@@ -29,8 +29,8 @@ $(document).ready(function() {
 		var xaxis = $("#xaxis").val();
 		var yaxis = $("#yaxis").val();
 		var text = $("#inputarea").val();
+		$("#viz_title").html(text)
 		$.post("/freq_by_time", {"text": text}, function(data) {
-
 			freq_to_time(JSON.parse(data));
 		});
 	})

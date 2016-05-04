@@ -11,6 +11,11 @@ html {
 	margin: 0px;
 }
 
+#viz_title {
+    left: 1000px;
+    position: absolute;
+}
+
 #side_panel {
 	position: fixed;
 	height: 100%;
