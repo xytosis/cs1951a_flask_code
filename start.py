@@ -6,6 +6,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 application = Flask(__name__)
+SOLR_IP = "54.173.242.173:8983"
 
 @application.route("/")
 def hello():
@@ -26,8 +27,11 @@ def freq_by_time():
     for r in ranges:
         start = r[0].strftime("%Y-%m-%dT%H:%M:%SZ")
         end = r[1].strftime("%Y-%m-%dT%H:%M:%SZ")
-        response = json.loads(urllib2.urlopen("http://52.207.213.209:8983/solr/comments/select?q=body:\"" + text + "\"&rows=0&wt=json&fq=created_utc:[" + start + "%20TO%20" + end + "]").read())
-        time_to_count.append([start, response["response"]["numFound"]])
+        req = "http://" + SOLR_IP + "/solr/comments/select?q=body:\"" + text + "\"&rows=0&wt=json&fq=created_utc:[" + start + "%20TO%20" + end + "]"
+        req2 = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=created_utc:[" + start + "%20TO%20" + end + "]"
+        response = json.loads(urllib2.urlopen(req).read())
+        response2 = json.loads(urllib2.urlopen(req2).read())
+        time_to_count.append([start, response["response"]["numFound"], response2["response"]["numFound"]])
 
     return json.dumps(time_to_count)
 
