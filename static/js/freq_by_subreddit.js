@@ -72,7 +72,7 @@ function freq_by_subreddit(data) {
 	        	return d["name"];
 	        })
 	        .attr("percent", function(d) {
-	        	return d["size"]/1000;
+	        	return d["size"]/5000;
 	        })
 	        .attr("class", "circ");
 	}
