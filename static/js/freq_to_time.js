@@ -66,13 +66,13 @@ function freq_to_time(data) {
 		.attr("width", 90)
 		.attr("height", 15)
 		.attr("x", function(d) {
-			return 240 - d[1] * scale *70/d[2] - 35;
+			return 240 - d[1] * scale *70/d[2] - 45;
 		})
 		.attr("y", function(d, i) {
 			return 20 * i + 33;
 		})
 		.text(function(d) {
-			return (d[1]/d[2]).toString().substring(1, 5);
+			return (d[1] * 100/d[2]).toString().substring(1, 5) + "%";
 		})
 		.attr("font-family", "sans-serif")
 		.attr("fill", "blue");
