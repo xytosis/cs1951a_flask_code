@@ -37,7 +37,6 @@ $(document).ready(function() {
 		function draw_stuff(inputs) {
 			var year = $("input[name=year]:checked").val();
 			var dataset = data[year];
-			console.log(dataset)
 
 		    var data2 = {
 		      name : "root",

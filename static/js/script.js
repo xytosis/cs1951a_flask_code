@@ -17,7 +17,7 @@ $(document).ready(function() {
 
 	$("#yaxis").change(function() {
 		var option = $(this).val();
-		if (option == "word_phrase") {
+		if (option == "word_phrase" || option == "word_phrase_subreddit") {
 			$("#inputarea").show();
 		} else {
 			$("#inputarea").hide();
@@ -26,13 +26,21 @@ $(document).ready(function() {
 
 	$("#submitbutton").click(function() {
 		clear_canvas();
-		var xaxis = $("#xaxis").val();
 		var yaxis = $("#yaxis").val();
 		var text = $("#inputarea").val();
-		$("#viz_title").html(text)
-		$.post("/freq_by_time", {"text": text}, function(data) {
-			freq_to_time(JSON.parse(data));
-		});
+		$("#viz_title").html("Query: " + text)
+		if (yaxis == "word_phrase") {
+			$.post("/freq_by_time", {"text": text}, function(data) {
+				freq_to_time(JSON.parse(data));
+			});
+		}
+
+		if (yaxis == "word_phrase_subreddit") {
+			$.post("/freq_by_subreddit", {"text":text}, function(data) {
+				freq_by_subreddit(JSON.parse(data));
+			});
+		}
+		
 	})
 
 });
