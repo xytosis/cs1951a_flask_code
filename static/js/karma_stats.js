@@ -9,7 +9,7 @@ function karma_stats (data) {
 	var svg = d3.select("#main_viz")
 		.append("svg")
 		.attr("width", data["max"] * 5 + 150 + (-5 * data["min"]))
-		.attr("height", 1200);
+		.attr("height", data["max_height"] + 50);
 
 
 	svg.selectAll("rect")
