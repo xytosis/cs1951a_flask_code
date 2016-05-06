@@ -17,7 +17,7 @@ $(document).ready(function() {
 
 	$("#yaxis").change(function() {
 		var option = $(this).val();
-		if (option == "word_phrase" || option == "word_phrase_subreddit") {
+		if (option == "word_phrase" || option == "word_phrase_subreddit" || option == "word_phrase_karma") {
 			$("#inputarea").show();
 		} else {
 			$("#inputarea").hide();
@@ -38,6 +38,12 @@ $(document).ready(function() {
 		if (yaxis == "word_phrase_subreddit") {
 			$.post("/freq_by_subreddit", {"text":text}, function(data) {
 				freq_by_subreddit(JSON.parse(data));
+			});
+		}
+
+		if (yaxis == "word_phrase_karma") {
+			$.post("/karma_stats", {"text":text}, function(data) {
+				karma_stats(JSON.parse(data));
 			});
 		}
 		

@@ -53,6 +53,36 @@ def freq_by_subreddit():
 	return json.dumps(top)
 
 
+@application.route("/karma_stats", methods=["POST"])
+def karma_stats():
+	text = urllib.quote(request.form["text"])
+	req = req = "http://" + SOLR_IP + "/solr/comments/select?q=body:\"" + text + "\"&rows=1000&wt=json&fl=votescore"
+	response = json.loads(urllib2.urlopen(req).read())
+	data = []
+	for r in response["response"]["docs"]:
+		data.append(int(r["votescore"]))
+	stats = dict()
+	hist = dict()
+	data = sorted(data)
+	stats["min"] = min(data)
+	stats["max"] = max(data)
+	stats["mean"] = sum(data)/float(len(data))
+	stats["median"] = data[len(data)/2]
+	stats["q1"] = data[len(data)/4]
+	stats["q3"] = data[3 * len(data)/4]
+	for d in data:
+		if d in hist:
+			hist[d] += 1
+		else:
+			hist[d] = 1
+	stats["hist"] = hist.items()
+	stuff = sorted(hist.keys())
+	stats["a"] = stuff[len(stuff)/2]
+	stats["b"] = stuff[len(stuff)/4]
+	stats["c"] = stuff[3 * len(stuff)/4]
+	stats["d"] = stuff[len(stuff)/3]
+	return json.dumps(stats)
+
 if __name__ == "__main__":
     application.debug = True
     application.run(host='0.0.0.0')
