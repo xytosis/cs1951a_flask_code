@@ -4,6 +4,7 @@ import urllib
 import urllib2
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from karma_predictor import model, vectorizer, top_words
 
 application = Flask(__name__)
 SOLR_IP = "54.173.242.173:8983"
@@ -83,6 +84,15 @@ def karma_stats():
 	stats["d"] = stuff[len(stuff)/3]
 	stats["max_height"] = max(hist.values())
 	return json.dumps(stats)
+
+
+@application.route("/karma_predict", methods=["POST"])
+def karma_predict():
+	text = [request.form["text"]]
+	mat = vectorizer.transform(text)
+	reduced_mat = mat[:,top_words[0]]
+	output = model.predict(reduced_mat)
+	return str(output[0])
 
 if __name__ == "__main__":
     application.debug = True

@@ -17,7 +17,7 @@ $(document).ready(function() {
 
 	$("#yaxis").change(function() {
 		var option = $(this).val();
-		if (option == "word_phrase" || option == "word_phrase_subreddit" || option == "word_phrase_karma") {
+		if (option == "karma_predict" || option == "word_phrase" || option == "word_phrase_subreddit" || option == "word_phrase_karma") {
 			$("#inputarea").show();
 		} else {
 			$("#inputarea").hide();
@@ -44,6 +44,12 @@ $(document).ready(function() {
 		if (yaxis == "word_phrase_karma") {
 			$.post("/karma_stats", {"text":text}, function(data) {
 				karma_stats(JSON.parse(data));
+			});
+		}
+
+		if (yaxis == "karma_predict") {
+			$.post("/karma_predict", {"text":text}, function(data) {
+				karma_predict(JSON.parse(data));
 			});
 		}
 		
