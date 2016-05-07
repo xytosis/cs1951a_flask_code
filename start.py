@@ -13,7 +13,7 @@ SOLR_IP = "54.173.242.173:8983"
 
 def get_url(q, req, start):
     response = json.loads(urllib2.urlopen(req).read())
-    q.put([start, response["response"]["numFound"]])
+    q.append([start, response["response"]["numFound"]])
 
 @application.route("/")
 def hello():
@@ -51,14 +51,24 @@ def freq_by_time():
         t.join()
 
     start_to_stuff = dict()
+
     for q in q1:
         if q[0] in start_to_stuff:
             start_to_stuff[q[0]].append(q[1])
         else:
-            start_to_stuff[q[0]] = q[1]
+            start_to_stuff[q[0]] = [q[1]]
 
-    print start_to_stuff
-    return ""
+    for q in q2:
+        if q[0] in start_to_stuff:
+            start_to_stuff[q[0]].append(q[1])
+        else:
+            start_to_stuff[q[0]] = [q[1]]
+
+    final_array = []
+    for key in start_to_stuff.keys():
+        final_array.append((key, start_to_stuff[key][0], start_to_stuff[key][1]))
+
+    return json.dumps(sorted(final_array, key=lambda x: x[0]))
 
 
 # queries solr and returns frequency to subreddit
