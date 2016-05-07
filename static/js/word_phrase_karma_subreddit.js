@@ -17,9 +17,9 @@ function word_phrase_karma_subreddit (data) {
 		.enter()
 		.append("circle")
 		.attr("cx", function(d, i) {
-			return i * 120 + 300;
+			return i * 120 + 400;
 		})
-		.attr("cy", 300)
+		.attr("cy", 400)
 		.attr("r", function(d) {
 			return d[1] * 10;
 		})
