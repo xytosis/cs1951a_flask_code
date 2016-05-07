@@ -17,7 +17,7 @@ $(document).ready(function() {
 
 	$("#yaxis").change(function() {
 		var option = $(this).val();
-		if (option == "karma_predict" || option == "word_phrase" || option == "word_phrase_subreddit" || option == "word_phrase_karma") {
+		if (option == "word_phrase_karma_subreddit" || option == "word_phrase_sentiment" || option == "karma_predict" || option == "word_phrase" || option == "word_phrase_subreddit" || option == "word_phrase_karma") {
 			$("#inputarea").show();
 		} else {
 			$("#inputarea").hide();
@@ -50,6 +50,18 @@ $(document).ready(function() {
 		if (yaxis == "karma_predict") {
 			$.post("/karma_predict", {"text":text}, function(data) {
 				karma_predict(JSON.parse(data));
+			});
+		}
+
+		if (yaxis == "word_phrase_sentiment") {
+			$.post("/word_phrase_sentiment", {"text":text}, function(data) {
+				word_phrase_sentiment(JSON.parse(data));
+			});
+		}
+
+		if (yaxis == "word_phrase_karma_subreddit") {
+			$.post("/word_phrase_karma_subreddit", {"text":text}, function(data) {
+				word_phrase_karma_subreddit(JSON.parse(data));
 			});
 		}
 		

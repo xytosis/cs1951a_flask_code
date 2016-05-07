@@ -94,6 +94,51 @@ def karma_predict():
 	output = model.predict(reduced_mat)
 	return str(output[0])
 
+
+@application.route("/word_phrase_sentiment", methods=["POST"])
+def word_phrase_sentiment():
+	text = urllib.quote(request.form["text"])
+	req = req = "http://" + SOLR_IP + "/solr/comments/select?q=body:\"" + text + "\"&rows=3000&wt=json&fl=subreddit,body"
+	response = json.loads(urllib2.urlopen(req).read())
+	subreddit_count = dict()
+	subreddit_sentiment = dict()
+	for r in response["response"]["docs"]:
+		if r["subreddit"] in subreddit_count:
+			subreddit_count[r["subreddit"]] += 1
+			#subreddit_sentiment[r["subreddit"]] += sentiment of body
+		else:
+			subreddit_count[r["subreddit"]] = 1
+			#subreddit_sentiment[r["subreddit"]] = sentimnet of body
+
+	# top_subreddits = sorted(subreddit_count.items(), key=lambda x: x[1], reverse=True)[:10]
+	# top_subreddits_avg = []
+	# for sb in top_subreddits:
+	# 	top_subreddits_avg.append((sb[0], subreddit_sentiment[sb[0]]/float(sb[1])))
+	# return json.dumps(sorted(top_subreddits_avg, key=lambda x: x[1], reverse=True))
+	return ""
+
+
+@application.route("/word_phrase_karma_subreddit", methods=["POST"])
+def word_phrase_karma_subreddit():
+	text = urllib.quote(request.form["text"])
+	req = req = "http://" + SOLR_IP + "/solr/comments/select?q=body:\"" + text + "\"&rows=3000&wt=json&fl=subreddit,votescore"
+	response = json.loads(urllib2.urlopen(req).read())
+	subreddit_count = dict()
+	subreddit_sentiment = dict()
+	for r in response["response"]["docs"]:
+		if r["subreddit"] in subreddit_count:
+			subreddit_count[r["subreddit"]] += 1
+			subreddit_sentiment[r["subreddit"]] += int(r["votescore"])
+		else:
+			subreddit_count[r["subreddit"]] = 1
+			subreddit_sentiment[r["subreddit"]] = int(r["votescore"])
+
+	top_subreddits = sorted(subreddit_count.items(), key=lambda x: x[1], reverse=True)[:10]
+	top_subreddits_avg = []
+	for sb in top_subreddits:
+		top_subreddits_avg.append((sb[0], subreddit_sentiment[sb[0]]/float(sb[1])))
+	return json.dumps(sorted(top_subreddits_avg, key=lambda x: x[1], reverse=True))
+
 if __name__ == "__main__":
     application.debug = True
     application.run(host='0.0.0.0')
