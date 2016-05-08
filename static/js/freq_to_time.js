@@ -14,7 +14,7 @@ function freq_to_time(data) {
 
 	var svg = d3.select("#main_viz")
 		.append("svg")
-		.attr("width", 2000)
+		.attr("width", factor + Math.max.apply(Math, yvalues)/scale + 350)
 		.attr("height", data.length * 20 + 30);
 
 	svg.selectAll("rect")
