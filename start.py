@@ -7,9 +7,14 @@ from dateutil.relativedelta import relativedelta
 from karma_predictor import model, vectorizer, top_words
 import threading
 import Queue
+import os
+import csv
+from collections import defaultdict
 
 application = Flask(__name__)
 SOLR_IP = "54.173.242.173:8983"
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))   # refers to application_top
+APP_STATIC = os.path.join(APP_ROOT, 'static')
 
 def get_url(q, req, start):
     response = json.loads(urllib2.urlopen(req).read())
@@ -17,8 +22,64 @@ def get_url(q, req, start):
 
 @application.route("/")
 def hello():
-    return render_template("start.html")
+	return render_template("start.html")
 
+@application.route("/testing")
+def subreddit_time_by_count_linechart():
+	# ranges = []
+	# cur_date = datetime.strptime("2007-10-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
+	# end_date = datetime.strptime("2015-01-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
+	# while cur_date < end_date:
+	# 	ranges.append((cur_date, cur_date + relativedelta(months=1)))
+	# 	cur_date = cur_date + relativedelta(months=1)
+	# time_to_count = []
+	# threads = []
+	# q1 = []
+	# q2 = []
+	# for r in ranges:
+	# 	start = r[0].strftime("%Y-%m-%dT%H:%M:%SZ")
+	# 	end = r[1].strftime("%Y-%m-%dT%H:%M:%SZ")
+	# 	req = "http://" + SOLR_IP + "/solr/comments/select?rows=0&fq=subreddit:AskReddit&wt=json&fq=created_utc:[" + start + "%20TO%20" + end + "]"
+	# 	req2 = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=created_utc:[" + start + "%20TO%20" + end + "]"
+	# 	t = threading.Thread(target=get_url, args=(q1, req, start))
+	# 	t2 = threading.Thread(target=get_url, args=(q2, req2, start))
+	# 	threads.append(t)
+	# 	threads.append(t2)
+	# 	t.start()
+	# 	t2.start()
+
+	# for t in threads:
+	# 	t.join()
+
+	# start_to_stuff = defaultdict(lambda:list)
+
+	# for q in q1:
+	# 	print q[1]
+	# 	start_to_stuff[q[0]].append(list(q[1]))
+
+	# for q in q2:
+	# 	start_to_stuff[q[0]].append(list(q[1]))
+
+	# final_array = []
+	# for key in start_to_stuff.keys():
+	# 	final_array.append((key, start_to_stuff[key][0], start_to_stuff[key][1]))
+	# print final_array
+
+#    return json.dumps(sorted(final_array, key=lambda x: x[0]))
+#q=*&rows=1&fq=subreddit:AskReddit&wt=json&fq=created_utc:[2007-10-01T23:59:59Z%20TO%202008-10-31T14:11:00Z]
+	with open(os.path.join(APP_STATIC, 'data/all.json')) as data_file:
+		data = json.load(data_file)
+		print data.keys()
+	
+	test_data = []
+	with open(os.path.join(APP_STATIC, 'data/test_data.tsv')) as tsv_file:
+		reader = csv.reader(tsv_file, delimiter='\t')
+		reader.next()
+		for row in reader:
+			test_data.append({"date":row[0], "close":row[1]})
+		print test_data[0]
+
+	return render_template("testing.html", data = test_data)
 
 # queries solr and returns frequency to time slice (month)
 @application.route("/freq_by_time", methods=["POST"])
