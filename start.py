@@ -16,6 +16,8 @@ from oauth2client.client import GoogleCredentials
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk import tokenize
+import re
+from textstat.textstat import textstat
 
 application = Flask(__name__)
 SOLR_IP = "54.173.242.173:8983"
@@ -300,6 +302,96 @@ def sentiment():
 		t.join()
 
 	return json.dumps(results)
+
+
+@application.route("/reading_level", methods=["POST"])
+def reading_level():
+	num_subreddits = 5
+	year = urllib.quote(request.form["year"])
+	if int(year) > 2014:
+		year += "_01"
+	results = [None] * num_subreddits
+	threads = [None] * num_subreddits
+
+	query1 = '''SELECT subreddit FROM 
+	(SELECT subreddit, count(*) AS c1 
+	FROM [fh-bigquery:reddit_comments.''' + str(year) + '''] 
+	GROUP BY subreddit 
+	ORDER BY c1 DESC LIMIT ''' + str(num_subreddits) + ''')'''
+
+	bigquery_service1 = build('bigquery', 'v2', credentials=credentials)
+	try:
+		query_request1 = bigquery_service1.jobs()
+		query_data1 = {
+			'query': query1,
+			'timeoutMs': 20000
+		}
+
+		query_response1 = query_request1.query(
+			projectId=bigquery_pid,
+			body=query_data1).execute()
+
+	except HttpError as err:
+		print('Error: {}'.format(err.content))
+		raise err
+
+	subreddits = [row['f'][0]['v'] for row in query_response1['rows']]
+
+	def getReadingLevel(subreddit):
+		query = '''SELECT body FROM 
+		(SELECT body, RAND() AS r1
+		FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
+		WHERE subreddit == "''' + subreddit + '''"  
+		AND body != "[deleted]"
+		AND body != "[removed]"
+		AND score > 1
+		ORDER BY r1
+		LIMIT 1000)
+		'''
+
+		bigquery_service = build('bigquery', 'v2', credentials=credentials)
+		try:
+			query_request = bigquery_service.jobs()
+			query_data = {
+				'query': query,
+				'timeoutMs': 20000
+			}
+
+			query_response = query_request.query(
+				projectId=bigquery_pid,
+				body=query_data).execute()
+
+		except HttpError as err:
+			print('Error: {}'.format(err.content))
+			raise err
+
+		rows = query_response['rows']
+
+		levels_sum = 0.0
+		levels_count = 0
+		for i in range(len(rows)):
+			text = rows[i]['f'][0]['v']
+			text = re.sub('([A-Za-z]+:\/\/[A-Za-z0-9]+\.[A-Za-z0-9]+[^\s-]*)|([A-Za-z]+\.[A-Za-z0-9]+\.[A-Za-z0-9]+[^\s-]*)', '', text) #url get rid
+			text = re.sub('\s\s+', ' ', text)
+			if textstat.sentence_count(text) > 0:
+				levels_sum += textstat.flesch_reading_ease(text)
+				levels_count += 1
+
+		average_level = 0.0
+		if levels_count > 0:
+			average_level = levels_sum / levels_count
+			results[subreddits.index(subreddit)] = [subreddit, 100.0 - average_level]
+
+	for i in range(num_subreddits):
+		t = threading.Thread(target=getReadingLevel, args=([subreddits[i]]))
+		threads[i] = t
+		t.start()
+
+	for t in threads:
+		t.join()
+
+	return json.dumps(results)
+
 
 if __name__ == "__main__":
     application.debug = True
