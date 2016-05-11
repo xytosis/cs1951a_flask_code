@@ -20,6 +20,7 @@
   <script src="static/js/freq_to_time.js"></script>
   <script src="static/js/freq_by_subreddit.js"></script>
   <script src="static/js/subreddit_popularity.js"></script>
+  <script src="static/js/sentiment.js"></script>
   <script src="static/js/script.js"></script>
   <script src="static/js/viz.js"></script>
 
@@ -51,9 +52,11 @@
       <option value="word_phrase_sentiment">Sentiment of word/phrase by Subreddit</option>
       <option value="word_phrase_karma_subreddit">Karma of word/phrase by Subreddit</option>
       <option value="subreddit_popularity">Subreddit Popularity Over Time</option>
+      <option value="sentiment">Sentiment over time by phrase/subreddit</option>
   		<option value="other">Other</option>
   	</select> Option
-  	<textarea id="inputarea"></textarea>
+  	<div id="phrasediv">phrase: <textarea id="phrasetext"></textarea></div>
+    <div id="subredditdiv">subreddit: <textarea id="subreddittext"></textarea></div>
   	<button id="submitbutton">Submit</button>
   </div>
 

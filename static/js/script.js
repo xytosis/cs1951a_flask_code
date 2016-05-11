@@ -23,17 +23,25 @@ $(document).ready(function() {
 			option == "word_phrase" || 
 			option == "word_phrase_subreddit" || 
 			option == "word_phrase_karma" ||
-			option == "subreddit_popularity") {
-			$("#inputarea").show();
+			option == "sentiment") {
+			$("#phrasediv").show();
 		} else {
-			$("#inputarea").hide();
+			$("#phrasediv").hide();
+		}
+
+		if (option == "subreddit_popularity" ||
+			option == "sentiment") {
+			$("#subredditdiv").show();
+		} else {
+			$("#subredditdiv").hide();
 		}
 	})
 
 	$("#submitbutton").click(function() {
 		clear_canvas();
 		var yaxis = $("#yaxis").val();
-		var text = $("#inputarea").val();
+		var text = $("#phrasetext").val();
+		var subreddit = $("#subreddittext").val();
 		$("#viz_title").html("Query: " + text)
 		if (yaxis == "word_phrase") {
 			$.post("/freq_by_time", {"text": text}, function(data) {
@@ -71,8 +79,14 @@ $(document).ready(function() {
 			});
 		}
 		if (yaxis == "subreddit_popularity"){
-			$.post("/subreddit_popularity", {"text":text}, function(data) {
+			$.post("/subreddit_popularity", {"subreddit":subreddit}, function(data) {
 				subreddit_popularity(JSON.parse(data));
+			});
+		}
+
+		if (yaxis == "sentiment"){
+			$.post("/sentiment", {"text":text,"subreddit":subreddit}, function(data) {
+				sentiment(JSON.parse(data));
 			});
 		}
 	})

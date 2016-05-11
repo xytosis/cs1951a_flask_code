@@ -10,9 +10,16 @@ import Queue
 import os
 import csv
 from collections import defaultdict
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from oauth2client.client import GoogleCredentials
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk import tokenize
 
 application = Flask(__name__)
 SOLR_IP = "54.173.242.173:8983"
+credentials = GoogleCredentials.get_application_default()
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))   # refers to application_top
 APP_STATIC = os.path.join(APP_ROOT, 'static')
 
@@ -23,49 +30,6 @@ def get_url(q, req, start):
 @application.route("/")
 def hello():
 	return render_template("start.html")
-
-@application.route("/subreddit_popularity", methods=["POST"])
-def subreddit_time_by_count_linechart():
-	subreddit = urllib.quote(request.form["text"])
-	ranges = []
-	cur_date = datetime.strptime("2007-10-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
-	end_date = datetime.strptime("2015-01-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
-	while cur_date < end_date:
-		ranges.append((cur_date, cur_date + relativedelta(months=1)))
-		cur_date = cur_date + relativedelta(months=1)
-	time_to_count = []
-	threads = []
-	q1 = []
-	q2 = []
-	for r in ranges:
-		start = r[0].strftime("%Y-%m-%dT%H:%M:%SZ")
-		end = r[1].strftime("%Y-%m-%dT%H:%M:%SZ")
-		req = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=(created_utc:[" + start + "%20TO%20" + end + "]%20AND%20subreddit:" +subreddit + ")"
-		req2 = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=created_utc:[" + start + "%20TO%20" + end + "]"
-		t = threading.Thread(target=get_url, args=(q1, req, start))
-		t2 = threading.Thread(target=get_url, args=(q2, req2, start))
-		threads.append(t)
-		threads.append(t2)
-		t.start()
-		t2.start()
-
-	for t in threads:
-		t.join()
-
-	start_to_stuff = defaultdict(lambda:list())
-
-	for q in q2:
-		start_to_stuff[q[0]].append(q[1])
-
-	for q in q1:
-		total = start_to_stuff[q[0]][0]
-		start_to_stuff[q[0]].append(float(q[1])/total)
-
-	final_array = []
-	for key, value in start_to_stuff.iteritems():
-		final_array.append([key[:10], 100*value[1]])
-
-	return json.dumps(sorted(final_array, key = lambda i : i[0]))
 
 # queries solr and returns frequency to time slice (month)
 @application.route("/freq_by_time", methods=["POST"])
@@ -219,6 +183,122 @@ def word_phrase_karma_subreddit():
 	for sb in top_subreddits:
 		top_subreddits_avg.append((sb[0], subreddit_sentiment[sb[0]]/float(sb[1])))
 	return json.dumps(sorted(top_subreddits_avg, key=lambda x: x[1], reverse=True))
+
+
+@application.route("/subreddit_popularity", methods=["POST"])
+def subreddit_time_by_count_linechart():
+	subreddit = urllib.quote(request.form["subreddit"])
+	ranges = []
+	cur_date = datetime.strptime("2007-10-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
+	end_date = datetime.strptime("2015-01-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
+	while cur_date < end_date:
+		ranges.append((cur_date, cur_date + relativedelta(months=1)))
+		cur_date = cur_date + relativedelta(months=1)
+	time_to_count = []
+	threads = []
+	q1 = []
+	q2 = []
+	for r in ranges:
+		start = r[0].strftime("%Y-%m-%dT%H:%M:%SZ")
+		end = r[1].strftime("%Y-%m-%dT%H:%M:%SZ")
+		req = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=(created_utc:[" + start + "%20TO%20" + end + "]%20AND%20subreddit:" +subreddit + ")"
+		req2 = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=created_utc:[" + start + "%20TO%20" + end + "]"
+		t = threading.Thread(target=get_url, args=(q1, req, start))
+		t2 = threading.Thread(target=get_url, args=(q2, req2, start))
+		threads.append(t)
+		threads.append(t2)
+		t.start()
+		t2.start()
+
+	for t in threads:
+		t.join()
+
+	start_to_stuff = defaultdict(lambda:list())
+
+	for q in q2:
+		start_to_stuff[q[0]].append(q[1])
+
+	for q in q1:
+		total = start_to_stuff[q[0]][0]
+		start_to_stuff[q[0]].append(float(q[1])/total)
+
+	final_array = []
+	for key, value in start_to_stuff.iteritems():
+		final_array.append([key[:10], 100*value[1]])
+
+	return json.dumps(sorted(final_array, key = lambda i : i[0]))
+
+
+@application.route("/sentiment", methods=["POST"])
+def sentiment():
+	phrase = urllib.quote(request.form["text"])
+	subreddit = urllib.quote(request.form["subreddit"])
+
+	sid = SentimentIntensityAnalyzer()
+	start_year = 2008
+	end_year = 2015
+	year_diff = end_year - start_year
+	results = [None] * year_diff
+	threads = [None] * year_diff
+
+
+	def getSentiment(year):
+		query = '''SELECT body, score 
+		FROM 
+		(SELECT subreddit, body, score, RAND() AS r1
+		FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
+		WHERE subreddit == \"''' + subreddit + '''\"
+		AND body != "[deleted]"
+		AND body != "[removed]"
+		AND REGEXP_MATCH(body, r'(?i:''' + phrase + ''')')
+		AND score > 1
+		ORDER BY r1
+		LIMIT 1000)'''
+
+		bigquery_service = build('bigquery', 'v2', credentials=credentials)
+		try:
+			query_request = bigquery_service.jobs()
+			query_data = {
+				'query': (query)
+			}
+
+			query_response = query_request.query(
+				projectId="project1-1258",
+				body=query_data).execute()
+
+		except HttpError as err:
+			print('Error: {}'.format(err.content))
+			raise err
+
+
+		rows = query_response['rows']
+		sentiments = []
+		for row in rows:
+			body = row['f'][0]['v']
+			score = int(row['f'][1]['v'])
+			sentiment_values = []
+
+			lines_list = tokenize.sent_tokenize(body)
+			for sentence in lines_list:
+				if phrase.upper() in sentence.upper():#(regex.search(sentence)):			
+					s = sid.polarity_scores(sentence)
+					sentiment_values.append(s['compound'])
+			
+			comment_sentiment = float(sum(sentiment_values)) / len(sentiment_values)
+			
+			sentiments = sentiments + (score * [comment_sentiment])
+
+		results[year - start_year] = [str(year), sum(sentiments) / len(sentiments)]
+
+	for i in range(year_diff):
+		t = threading.Thread(target=getSentiment, args=([i + start_year]))
+		threads[i] = t
+		t.start()
+
+	for t in threads:
+		t.join()
+
+	return json.dumps(results)
 
 if __name__ == "__main__":
     application.debug = True

@@ -145,7 +145,11 @@ input.radio:checked ~ label {
     color: #777;
 }
 
-#inputarea {
+#phrasediv {
+    display: none;
+}
+
+#subredditdiv {
     display: none;
 }
 
