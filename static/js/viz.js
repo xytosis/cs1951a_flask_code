@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-	var margin = { top: 50, right: 0, bottom: 100, left: 30 },
+	var margin = { top: 150, right: 0, bottom: 100, left: 30 },
       width = 2000 - margin.left - margin.right,
       height = 800 - margin.top - margin.bottom
 
