@@ -3,7 +3,7 @@ function freq_by_subreddit(data) {
 
 
 	var margin = { top: 50, right: 0, bottom: 100, left: 30 },
-      width = 1000 - margin.left - margin.right,
+      width = $("#visualization").width() - margin.left - margin.right - 50,
       height = 1000 - margin.top - margin.bottom
 
 
@@ -25,12 +25,10 @@ function freq_by_subreddit(data) {
 	    return color;
 	}
 
-	var w = 1000,
-	h = 1000;
 	var canvas = d3.select("#main_viz")
 	      .append("svg:svg")
-	      .attr("width", w)
-	      .attr("height", h);
+	      .attr("width", width)
+	      .attr("height", height);
 
 
 	function draw_stuff() {
@@ -48,7 +46,7 @@ function freq_by_subreddit(data) {
 	    
 	    var nodes = d3.layout.pack()
 	      .value(function(d) { return d.size; })
-	      .size([w, h])
+	      .size([width, height])
 	      .nodes(data2);
 	    
 	    // Get rid of root node

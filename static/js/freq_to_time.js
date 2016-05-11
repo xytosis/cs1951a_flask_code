@@ -10,13 +10,13 @@ function freq_to_time(data) {
 	var max_red = Math.max.apply(Math, yvalues);
 	var max_blue = Math.max.apply(Math, xvalues)
 	var big_blue = 100;
-	var big_red = 1000;
+	var big_red = $("#visualization").width() - 300;
 	var red_scale = big_red/max_red;
 	var blue_scale = big_blue/max_blue;
 
 	var svg = d3.select("#main_viz")
 		.append("svg")
-		.attr("width", 1000 + 350)
+		.attr("width", $("#visualization").width())
 		.attr("height", data.length * 20 + 30);
 
 	svg.selectAll("rect")
