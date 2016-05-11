@@ -35,6 +35,12 @@ $(document).ready(function() {
 		} else {
 			$("#subredditdiv").hide();
 		}
+
+		if (option == "reading_level") {
+			$("#yeardiv").show();
+		} else {
+			$("#yeardiv").hide();
+		}
 	})
 
 	$("#submitbutton").click(function() {
@@ -42,6 +48,7 @@ $(document).ready(function() {
 		var yaxis = $("#yaxis").val();
 		var text = $("#phrasetext").val();
 		var subreddit = $("#subreddittext").val();
+		var year = $("#yeartext").val();
 		$("#viz_title").html("Query: " + text)
 		if (yaxis == "word_phrase") {
 			$.post("/freq_by_time", {"text": text}, function(data) {
@@ -87,6 +94,12 @@ $(document).ready(function() {
 		if (yaxis == "sentiment"){
 			$.post("/sentiment", {"text":text,"subreddit":subreddit}, function(data) {
 				sentiment(JSON.parse(data));
+			});
+		}
+
+		if (yaxis == "reading_level"){
+			$.post("/reading_level", {"year":year}, function(data) {
+				reading_level(JSON.parse(data));
 			});
 		}
 	})
