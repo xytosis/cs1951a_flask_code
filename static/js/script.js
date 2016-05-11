@@ -18,7 +18,6 @@ $(document).ready(function() {
 	$("#yaxis").change(function() {
 		var option = $(this).val();
 		if (option == "word_phrase_karma_subreddit" || 
-			option == "word_phrase_sentiment" || 
 			option == "karma_predict" || 
 			option == "word_phrase" || 
 			option == "word_phrase_subreddit" || 
@@ -76,13 +75,6 @@ $(document).ready(function() {
 			$.post("/karma_predict", {"text":text}, function(data) {
 				$("#loading").hide()
 				karma_predict(JSON.parse(data));
-			});
-		}
-
-		if (yaxis == "word_phrase_sentiment") {
-			$.post("/word_phrase_sentiment", {"text":text}, function(data) {
-				$("#loading").hide()
-				word_phrase_sentiment(JSON.parse(data));
 			});
 		}
 

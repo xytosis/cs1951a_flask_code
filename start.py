@@ -143,29 +143,6 @@ def karma_predict():
 	return str(output[0])
 
 
-@application.route("/word_phrase_sentiment", methods=["POST"])
-def word_phrase_sentiment():
-	text = urllib.quote(request.form["text"])
-	req = req = "http://" + SOLR_IP + "/solr/comments/select?q=body:\"" + text + "\"&rows=3000&wt=json&fl=subreddit,body"
-	response = json.loads(urllib2.urlopen(req).read())
-	subreddit_count = dict()
-	subreddit_sentiment = dict()
-	for r in response["response"]["docs"]:
-		if r["subreddit"] in subreddit_count:
-			subreddit_count[r["subreddit"]] += 1
-			#subreddit_sentiment[r["subreddit"]] += sentiment of body
-		else:
-			subreddit_count[r["subreddit"]] = 1
-			#subreddit_sentiment[r["subreddit"]] = sentimnet of body
-
-	# top_subreddits = sorted(subreddit_count.items(), key=lambda x: x[1], reverse=True)[:10]
-	# top_subreddits_avg = []
-	# for sb in top_subreddits:
-	# 	top_subreddits_avg.append((sb[0], subreddit_sentiment[sb[0]]/float(sb[1])))
-	# return json.dumps(sorted(top_subreddits_avg, key=lambda x: x[1], reverse=True))
-	return ""
-
-
 @application.route("/word_phrase_karma_subreddit", methods=["POST"])
 def word_phrase_karma_subreddit():
 	text = urllib.quote(request.form["text"])
@@ -256,14 +233,14 @@ def sentiment():
 		AND REGEXP_MATCH(body, r'(?i:''' + phrase + ''')')
 		AND score > 1
 		ORDER BY r1
-		LIMIT 1000)'''
+		LIMIT 2000)'''
 
 		bigquery_service = build('bigquery', 'v2', credentials=credentials)
 		try:
 			query_request = bigquery_service.jobs()
 			query_data = {
 				'query': query,
-				'timeoutMs': 20000
+				'timeoutMs': 30000
 			}
 
 			query_response = query_request.query(
@@ -324,7 +301,7 @@ def reading_level():
 		query_request1 = bigquery_service1.jobs()
 		query_data1 = {
 			'query': query1,
-			'timeoutMs': 20000
+			'timeoutMs': 30000
 		}
 
 		query_response1 = query_request1.query(

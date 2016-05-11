@@ -61,14 +61,14 @@ svg.selectAll(".bar")
     .attr("width", x.rangeBand())
     .attr("y", function(d) { return y(d[1]); })
     .attr("height", function(d) { return height - y(d[1]); })
-  .on("mouseover", function(d) {
+  .on("mousemove", function(d) {
 	div.transition()
 		.style("opacity", .8);
 	div.html(xLabel + ": " + d[0] + "<br/>" + yLabel + ": " + d[1])
 		.style("left", (d3.event.pageX) + "px")
 		.style("top", (d3.event.pageY - 35) + "px");
 	})
-.on("mouseout", function(d) {
+    .on("mouseout", function(d) {
 	div.transition()
 		.style("opacity", 0);
 });
