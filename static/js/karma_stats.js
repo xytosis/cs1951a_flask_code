@@ -1,14 +1,12 @@
 function karma_stats (data) {
 
 	var hist = data["hist"];
-	//var gap = (data["max"] - data["min"])/100;
-	//var hist = [[0, 10],[200, 20],[300, 30],[400, 40]];
-	//var gap = 400;
-	console.log(data)
+	var scale = ($("#visualization").width()-50)/(data["max"] - data["min"]);
+	var norm = -1 * data["min"] + 25;
 
 	var svg = d3.select("#main_viz")
 		.append("svg")
-		.attr("width", data["max"] * 5 + 150 + (-5 * data["min"]))
+		.attr("width", $("#visualization").width())
 		.attr("height", data["max_height"] + 50);
 
 
@@ -17,9 +15,9 @@ function karma_stats (data) {
 		.enter()
 		.append("rect")
 		.attr("x", function(d) {
-			return d[0]*5 + 100 + (-5 * data["min"]);
+			return (d[0] + norm) * scale;
 		})
-		.attr("y", 110)
+		.attr("y", 50)
 		.attr("width", function(d) {
 			return 3;
 		})
@@ -36,11 +34,11 @@ function karma_stats (data) {
 		.attr("width", 90)
 		.attr("height", 15)
 		.attr("x", function(d) {
-			return d[0]*5 + 100 + (-5 * data["min"]);
+			return (d[0] + norm) * scale;
 		})
-		.attr("y", 100)
+		.attr("y", 40)
 		.text(function(d) {
-			if (d[0] == 0 || d[0] == data["min"] || d[0] == data["max"] || d[0] == data["a"] || d[0] == data["b"] || d[0] == data["c"] || d[0] == data["d"]) {
+			if (d[0] == 0 || d[0] == data["min"] || d[0] == data["max"]) {
 				console.log(d[0])
 				return d[0];
 			}
