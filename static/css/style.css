@@ -9,8 +9,8 @@
 }
 
 #display-container {
-    box-shadow: 0 0 50px #000;
-    position: fixed;
+/*    box-shadow: 0 0 50px #000;
+*/    position: fixed;
     top: 0;
     left: 15%;
     height: 100%;
@@ -20,42 +20,65 @@
 
 #banner {
     background-color: #d3f3fe;
-    border-bottom: 1px solid #999;
+    border-bottom: 1px solid #336699;
     text-align: center;
     position: fixed;
     top: 0;
     left: 15%;
-    height: 75px;
+    height: 100px;
     width: 70%;
     z-index: 99;
 }
 
 #banner-image {
-    height: 75px;
+    height: 100px;
     width: auto;
+}
+
+.textbox{
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+select{
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+}
+button {
+    background-color: #ff5700;
+    border: none;
+    color: white;
+    border-radius: 10px;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
 }
 
 #side-menu {
     background-color: #cee3f8;
-    border-right: 1px solid #999;
-    font-size: 150%;
+/*    border-right: 1px solid #999;
+*/    font-size: 150%;
     padding: 10px;
     position: fixed;
-    top: 75px;
+    top: 100px;
     left: 15%;
-    height: calc(100% - 95px);
+    height: calc(100% - 120px);
     width: 15%;
     z-index: 98;
 }
 
 #displayed-content {
-    background-color: #eff7ff;
+    background-color: #ffffff;
     overflow: hidden;
     padding: 10px;
     position: relative;
-    top: 75px;
+    top: 100px;
     left: calc(30% + 20px);
-    min-height: calc(100% - 95px);
+    min-height: calc(100% - 120px);
     width: calc(55% - 40px);
     z-index: 97;
 }
