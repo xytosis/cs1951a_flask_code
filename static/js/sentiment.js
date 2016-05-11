@@ -1,5 +1,4 @@
 function sentiment(data){
-  console.log(data);
   for (var i = 0, len = data.length; i < len; i++) {
     data[i][0] = d3.time.format("%Y").parse(data[i][0]);
   }

@@ -20,6 +20,7 @@ from nltk import tokenize
 application = Flask(__name__)
 SOLR_IP = "54.173.242.173:8983"
 credentials = GoogleCredentials.get_application_default()
+bigquery_pid = "project1-1258"
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))   # refers to application_top
 APP_STATIC = os.path.join(APP_ROOT, 'static')
 
@@ -259,17 +260,17 @@ def sentiment():
 		try:
 			query_request = bigquery_service.jobs()
 			query_data = {
-				'query': (query)
+				'query': query,
+				'timeoutMs': 20000
 			}
 
 			query_response = query_request.query(
-				projectId="project1-1258",
+				projectId=bigquery_pid,
 				body=query_data).execute()
 
 		except HttpError as err:
 			print('Error: {}'.format(err.content))
 			raise err
-
 
 		rows = query_response['rows']
 		sentiments = []
