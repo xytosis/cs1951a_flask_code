@@ -311,5 +311,8 @@ div.tooltip {
 #loading {
     display: none;
     position:absolute;
-    z-index: 100;
+}
+
+::-webkit-scrollbar { 
+    display: none; 
 }
