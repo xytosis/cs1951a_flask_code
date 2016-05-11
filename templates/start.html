@@ -33,29 +33,30 @@
   This is some Reddit Analysis application. Pick the interactive option and enter your input.
   </h3>
   <br>
-  <div>
-    <select class="selectform" id="yaxis">
-      <option disabled selected value> -- select an option -- </option>
-      <option value="word_phrase">Word or phrase by Time</option>
-      <option value="word_phrase_subreddit">Word or phrase by Subreddit</option>
-      <option value="word_phrase_karma">Word or phrase karma stats</option>
-      <option value="karma_predict">Predict karma of comment</option>
-      <option value="sentiment">Sentiment of word/phrase by Subreddit</option>
-      <option value="word_phrase_karma_subreddit">Karma of word/phrase by Subreddit</option>
-      <option value="subreddit_popularity">Subreddit Popularity Over Time</option>
-      <option value="other">Other</option>
-      <option value="reading_level">Reading level by subreddit for year</option>
-    </select>
+  <select class="selectform" id="yaxis">
+    <option disabled selected value> -- select an option -- </option>
+    <option value="word_phrase">Word vs. Time</option>
+    <option value="word_phrase_subreddit">Word vs. Subreddit</option>
+    <option value="word_phrase_karma">Word vs. Karma</option>
 
-    <br>
-    <br>
-        <div id="phrasediv" class="inputdiv"><p>phrase:</p><input type="text" id="phrasetext" class="textbox"></input></div>
-        <div id="subredditdiv" class="inputdiv"><p>subreddit:</p><input type="text" id="subreddittext"class="textbox"></input></div>
-        <div id="yeardiv" class="inputdiv"><p>year:</p><input type = "text" id="yeartext"class="textbox"></input></div>
-        <br>
-        <button id="submitbutton">Submit</button>
-  </div>
-</div>
+    <option value="sentiment">Sentiment vs. Subreddit</option>
+    <option value="word_phrase_karma_subreddit">Karma vs. Subreddit</option>
+    
+    <option value="subreddit_popularity">Subreddit Popularity vs. Time</option>
+    <option value="reading_level">Reading Level vs. Subreddit</option>
+
+    <option value="karma_predict">Predict karma of comment</option>
+    
+  </select>
+  <br>
+  <br>
+  <div id="phrasediv" class="inputdiv">Type a word or phrase:<br><br><input type="text" id="phrasetext" class="textbox"></input></div><br>
+  <div id="subredditdiv" class="inputdiv">Type a subreddit (case sensitive):<br><br><input type="text" id="subreddittext"class="textbox"></input></div><br>
+  <div id="yeardiv" class="inputdiv">Type a year (2007-2014):<br><br><input type = "text" id="yeartext"class="textbox"></input></div><br>
+  <br>
+
+  <button id="submitbutton">Submit</button>
+</div> <!-- side menu -->
 <div id="displayed-content">
   <div id="visualization">
     <h1 id="viz_title"></h1>
