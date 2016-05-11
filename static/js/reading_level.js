@@ -18,6 +18,8 @@ var yAxis = d3.svg.axis()
     .orient("left")
     .ticks(10);
 
+
+d3.select(".tooltip").remove();
 var div = d3.select("body").append("div")	
 	.attr("class", "tooltip")				
 	.style("opacity", 0);
