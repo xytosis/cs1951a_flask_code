@@ -7,26 +7,28 @@ function freq_to_time(data) {
 		yvalues.push(data[i][1]);
 		xvalues.push(data[i][1]/data[i][2]);
 	}
-	var scale = Math.max.apply(Math, yvalues);
-	var temp = Math.max.apply(Math, xvalues)
-	var scale = scale/1500;
-	var factor = temp * scale * 70 - 100
+	var max_red = Math.max.apply(Math, yvalues);
+	var max_blue = Math.max.apply(Math, xvalues)
+	var big_blue = 100;
+	var big_red = 1000;
+	var red_scale = big_red/max_red;
+	var blue_scale = big_blue/max_blue;
 
 	var svg = d3.select("#main_viz")
 		.append("svg")
-		.attr("width", factor + Math.max.apply(Math, yvalues)/scale + 350)
+		.attr("width", 1000 + 350)
 		.attr("height", data.length * 20 + 30);
 
 	svg.selectAll("rect")
 		.data(data)
 		.enter()
 		.append("rect")
-		.attr("x", 250 + factor)
+		.attr("x", 250)
 		.attr("y", function(d, i) {
 			return 20 * i + 20;
 		})
 		.attr("width", function(d) {
-			return d[1]/scale + 2;
+			return d[1] * red_scale + 2;
 		})
 		.attr("height", 15)
 		.attr("fill", "rgba(150, 13, 13, 1)");
@@ -36,13 +38,13 @@ function freq_to_time(data) {
 		.enter()
 		.append("rect")
 		.attr("x", function(d) {
-			return 240 - d[1] * scale *70/d[2] + 2 + factor;
+			return 240 - d[1] * blue_scale/d[2] + 2;
 		})
 		.attr("y", function(d, i) {
 			return 20 * i + 20;
 		})
 		.attr("width", function(d) {
-			return d[1] * scale *70/d[2] + 2;
+			return d[1] * blue_scale /d[2] + 2;
 		})
 		.attr("height", 15)
 		.attr("fill", "blue");
@@ -70,7 +72,7 @@ function freq_to_time(data) {
 		.attr("width", 90)
 		.attr("height", 15)
 		.attr("x", function(d) {
-			return 240 - d[1] * scale *70/d[2] - 45 + factor;
+			return 240 - d[1] * blue_scale/d[2] - 45;
 		})
 		.attr("y", function(d, i) {
 			return 20 * i + 33;
@@ -88,7 +90,7 @@ function freq_to_time(data) {
 		.attr("width", 90)
 		.attr("height", 15)
 		.attr("x", function(d) {
-			return d[1]/scale + 260 + factor;
+			return d[1] * red_scale + 260;
 		})
 		.attr("y", function(d, i) {
 			return 20 * i + 33;
