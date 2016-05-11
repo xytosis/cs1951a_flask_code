@@ -50,55 +50,65 @@ $(document).ready(function() {
 		var subreddit = $("#subreddittext").val();
 		var year = $("#yeartext").val();
 		$("#viz_title").html("Query: " + text)
+		$("#loading").show()
 		if (yaxis == "word_phrase") {
 			$.post("/freq_by_time", {"text": text}, function(data) {
+				$("#loading").hide()
 				freq_to_time(JSON.parse(data));
 			});
 		}
 
 		if (yaxis == "word_phrase_subreddit") {
 			$.post("/freq_by_subreddit", {"text":text}, function(data) {
+				$("#loading").hide()
 				freq_by_subreddit(JSON.parse(data));
 			});
 		}
 
 		if (yaxis == "word_phrase_karma") {
 			$.post("/karma_stats", {"text":text}, function(data) {
+				$("#loading").hide()
 				karma_stats(JSON.parse(data));
 			});
 		}
 
 		if (yaxis == "karma_predict") {
 			$.post("/karma_predict", {"text":text}, function(data) {
+				$("#loading").hide()
 				karma_predict(JSON.parse(data));
 			});
 		}
 
 		if (yaxis == "word_phrase_sentiment") {
 			$.post("/word_phrase_sentiment", {"text":text}, function(data) {
+				$("#loading").hide()
 				word_phrase_sentiment(JSON.parse(data));
 			});
 		}
 
 		if (yaxis == "word_phrase_karma_subreddit") {
 			$.post("/word_phrase_karma_subreddit", {"text":text}, function(data) {
+				$("#loading").hide()
 				word_phrase_karma_subreddit(JSON.parse(data));
 			});
 		}
 		if (yaxis == "subreddit_popularity"){
 			$.post("/subreddit_popularity", {"subreddit":subreddit}, function(data) {
+				$("#loading").hide()
 				subreddit_popularity(JSON.parse(data));
 			});
 		}
 
 		if (yaxis == "sentiment"){
 			$.post("/sentiment", {"text":text,"subreddit":subreddit}, function(data) {
+				$("#loading").hide()
 				sentiment(JSON.parse(data));
 			});
 		}
 
 		if (yaxis == "reading_level"){
 			$.post("/reading_level", {"year":year}, function(data) {
+				$("#loading").hide()
 				reading_level(JSON.parse(data));
 			});
 		}
