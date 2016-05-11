@@ -306,13 +306,10 @@ div.tooltip {
     border: 0px;
     border-radius: 8px;
     pointer-events: none;
-<<<<<<< HEAD
 }
 
 #loading {
     display: none;
-=======
     position:absolute;
     z-index: 100;
->>>>>>> f401dd34af477516aba3facb950de348ffc35944
 }
