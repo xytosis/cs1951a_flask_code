@@ -1,40 +1,7 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<style>
-
-body {
-  font: 10px sans-serif;
-}
-
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.x.axis path {
-  display: none;
-}
-
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
-
-</style>
-<body>0
-<script src="//d3js.org/d3.v3.min.js"></script>
-<script>
-
-var data = [];
-{% for d in data %}
-	data.push({{d|safe}});
-{% endfor %}
+function subreddit_popularity(data){
 
 for (var i = 0, len = data.length; i < len; i++) {
-	data[i][0] = d3.time.format("%Y-%m-%d").parse(data[i][0]);
+  data[i][0] = d3.time.format("%Y-%m-%d").parse(data[i][0]);
 }
 
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -59,14 +26,14 @@ var line = d3.svg.line()
     .x(function(d) { return x(d[0]); })
     .y(function(d) { return y(d[1]); });
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#main_viz").append("svg:svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 x.domain(d3.extent(data, function(d) { 
-	return d[0]; }));
+  return d[0]; }));
 y.domain(d3.extent(data, function(d) { return d[1]; }));
 
 svg.append("g")
@@ -88,5 +55,4 @@ svg.append("path")
   .datum(data)
   .attr("class", "line")
   .attr("d", line);
-
-</script>
+}

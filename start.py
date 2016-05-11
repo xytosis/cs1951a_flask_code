@@ -24,8 +24,9 @@ def get_url(q, req, start):
 def hello():
 	return render_template("start.html")
 
-@application.route("/testing")
+@application.route("/subreddit_popularity", methods=["POST"])
 def subreddit_time_by_count_linechart():
+	subreddit = urllib.quote(request.form["text"])
 	ranges = []
 	cur_date = datetime.strptime("2007-10-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
 	end_date = datetime.strptime("2015-01-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
@@ -39,7 +40,7 @@ def subreddit_time_by_count_linechart():
 	for r in ranges:
 		start = r[0].strftime("%Y-%m-%dT%H:%M:%SZ")
 		end = r[1].strftime("%Y-%m-%dT%H:%M:%SZ")
-		req = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=(created_utc:[" + start + "%20TO%20" + end + "]%20AND%20subreddit:politics)"
+		req = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=(created_utc:[" + start + "%20TO%20" + end + "]%20AND%20subreddit:" +subreddit + ")"
 		req2 = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=created_utc:[" + start + "%20TO%20" + end + "]"
 		t = threading.Thread(target=get_url, args=(q1, req, start))
 		t2 = threading.Thread(target=get_url, args=(q2, req2, start))
@@ -64,7 +65,7 @@ def subreddit_time_by_count_linechart():
 	for key, value in start_to_stuff.iteritems():
 		final_array.append([key[:10], 100*value[1]])
 
-	return render_template("testing.html", data = sorted(final_array, key = lambda i : i[0]))
+	return json.dumps(sorted(final_array, key = lambda i : i[0]))
 
 # queries solr and returns frequency to time slice (month)
 @application.route("/freq_by_time", methods=["POST"])

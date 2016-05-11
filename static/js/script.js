@@ -17,7 +17,13 @@ $(document).ready(function() {
 
 	$("#yaxis").change(function() {
 		var option = $(this).val();
-		if (option == "word_phrase_karma_subreddit" || option == "word_phrase_sentiment" || option == "karma_predict" || option == "word_phrase" || option == "word_phrase_subreddit" || option == "word_phrase_karma") {
+		if (option == "word_phrase_karma_subreddit" || 
+			option == "word_phrase_sentiment" || 
+			option == "karma_predict" || 
+			option == "word_phrase" || 
+			option == "word_phrase_subreddit" || 
+			option == "word_phrase_karma" ||
+			option == "subreddit_popularity") {
 			$("#inputarea").show();
 		} else {
 			$("#inputarea").hide();
@@ -64,7 +70,11 @@ $(document).ready(function() {
 				word_phrase_karma_subreddit(JSON.parse(data));
 			});
 		}
-		
+		if (yaxis == "subreddit_popularity"){
+			$.post("/subreddit_popularity", {"text":text}, function(data) {
+				subreddit_popularity(JSON.parse(data));
+			});
+		}
 	})
 
 });
