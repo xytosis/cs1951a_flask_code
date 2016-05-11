@@ -295,3 +295,17 @@ div.tooltip {
 ::-webkit-scrollbar { 
     display: none; 
 }
+
+.overlay {
+    fill: none;
+    pointer-events: all;
+    position:absolute;
+    z-index:100;
+}
+
+.focus circle {
+    fill: none;
+    stroke: steelblue;
+    position:absolute;
+    z-index:100;
+}

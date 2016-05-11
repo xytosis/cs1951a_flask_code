@@ -55,4 +55,35 @@ svg.append("path")
   .datum(data)
   .attr("class", "line")
   .attr("d", line);
+
+d3.select(".focus").remove();
+var focus = svg.append("g")
+    .attr("class", "focus")
+    .style("display", "none");
+
+focus.append("circle")
+    .attr("r", 4.5);
+
+focus.append("text")
+    .attr("x", 9)
+    .attr("dy", ".35em");
+
+bisectDate = d3.bisector(function(d) { return d[0]; }).left,
+
+d3.select(".overlay").remove();
+svg.append("rect")
+    .attr("class", "overlay")
+    .attr("width", width)
+    .attr("height", height)
+    .on("mouseover", function() { focus.style("display", null); })
+    .on("mouseout", function() { focus.style("display", "none"); })
+    .on("mousemove", function() {
+  var x0 = x.invert(d3.mouse(this)[0]),
+      i = bisectDate(data, x0, 1),
+      d0 = data[i - 1],
+      d1 = data[i],
+      d = x0 - d0[1] > d1[1] - x0 ? d1 : d0;
+  focus.attr("transform", "translate(" + x(d[0]) + "," + y(d[1]) + ")");
+  focus.select("text").text(parseFloat(Math.round(d[1] * 100) / 100).toFixed(2));
+});
 }

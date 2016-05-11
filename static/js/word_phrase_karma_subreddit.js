@@ -1,10 +1,16 @@
 function word_phrase_karma_subreddit (data) {
 
-	console.log(data);
 	
+
+	rvalues = [];
+	for (var i = 0; i < data.length; i++) {
+		rvalues.push(data[i][1])
+	}
+	var max_value = Math.max.apply(Math, rvalues);
+	var scale = $("#visualization").width()/10 - max_value;
 	var svg = d3.select("#main_viz")
 		.append("svg")
-		.attr("width", 2000)
+		.attr("width", $("#visualization").width())
 		.attr("height", 1000);
 
 	var color = d3.scale.linear()
@@ -17,9 +23,11 @@ function word_phrase_karma_subreddit (data) {
 		.enter()
 		.append("circle")
 		.attr("cx", function(d, i) {
-			return i * 120 + 400;
+			return i * scale + max_value*10;
 		})
-		.attr("cy", 400)
+		.attr("cy", function(d, i) {
+			return i * 100 + max_value*10;
+		})
 		.attr("r", function(d) {
 			return d[1] * 10;
 		})
