@@ -35,10 +35,21 @@
     width: auto;
 }
 
-.textbox{
+.textbox {
     border: none;
     border-radius: 10px;
     padding: 10px;
+    margin: 3px;
+    float: right;
+}
+
+.inputdiv {
+	overflow: auto;
+}
+
+p {
+	display: inline;
+	font-size: 24px;
 }
 
 select{
@@ -294,4 +305,6 @@ div.tooltip {
     border: 0px;
     border-radius: 8px;
     pointer-events: none;
+    position:absolute;
+    z-index: 100;
 }
