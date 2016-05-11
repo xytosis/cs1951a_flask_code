@@ -162,6 +162,7 @@ height: 1px;
 }
 
 #visualization{
+    overflow: scroll;
 }
 
 #main {
