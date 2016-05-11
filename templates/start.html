@@ -24,64 +24,41 @@
   <script src="static/js/reading_level.js"></script>
   <script src="static/js/script.js"></script>
   <script src="static/js/viz.js"></script>
-
-  
 </head>
 
-<table id="orgtable">
-  <tr>
-    <th id="header" colspan="2"><img id = "header_image" class="center" src="static/images/cheats.jpg"/></th>
-  </tr>
-  <tr>
-    <td id="sidebar">
-      <div id="sidebar-container">
-        <div id="about">
-          This is some Reddit Analysis application. Pick the interactive option and enter your input.
-        </div>
+<div id="display-container"></div>
+<div id="background"></div>
+<div id="banner"><img id="banner-image" src="static/images/cheats.jpg"/></div>
+<div id="side-menu">
+  This is some Reddit Analysis application. Pick the interactive option and enter your input.
+  <div>
+    <select class="selectform" id="yaxis">
+      <option disabled selected value> -- select an option -- </option>
+      <option value="word_phrase">Word or phrase by Time</option>
+      <option value="word_phrase_subreddit">Word or phrase by Subreddit</option>
+      <option value="word_phrase_karma">Word or phrase karma stats</option>
+      <option value="karma_predict">Predict karma of comment</option>
+      <option value="word_phrase_sentiment">Sentiment of word/phrase by Subreddit</option>
+      <option value="word_phrase_karma_subreddit">Karma of word/phrase by Subreddit</option>
+      <option value="subreddit_popularity">Subreddit Popularity Over Time</option>
+      <option value="other">Other</option>
+      <option value="reading_level">Reading level by subreddit for year</option>
+    </select>
 
-        <div>
-          <select class="selectform" id="yaxis">
-            <option disabled selected value> -- select an option -- </option>
-            <option value="word_phrase">Word or phrase by Time</option>
-            <option value="word_phrase_subreddit">Word or phrase by Subreddit</option>
-            <option value="word_phrase_karma">Word or phrase karma stats</option>
-            <option value="karma_predict">Predict karma of comment</option>
-            <option value="word_phrase_sentiment">Sentiment of word/phrase by Subreddit</option>
-            <option value="word_phrase_karma_subreddit">Karma of word/phrase by Subreddit</option>
-            <option value="subreddit_popularity">Subreddit Popularity Over Time</option>
-            <option value="other">Other</option>
-            <option value="reading_level">Reading level by subreddit for year</option>
-          </select>
-
-          <br>
-          Option
-              <div id="phrasediv">phrase: <textarea id="phrasetext"></textarea></div>
-              <div id="subredditdiv">subreddit: <textarea id="subreddittext"></textarea></div>
-              <div id="yeardiv">year: <textarea id="yeartext"></textarea></div>
-              <button id="submitbutton">Submit</button>
-        </div>
-      </div> <!-- side panel -->
-    </td>
-    <td id="viz-cell">
-      <div id="visualization">
-        <h1 id="viz_title"></h1>
-        <div id="main_viz"></div> <!-- graphs -->
-        <div id="main_axis"></div>
-        <div id="main_tooltip"></div>
-      </div>
-    </td>
-  </tr>
-</table>
-
-<!-- <body>
-<div class = "wrapper">
-  <header> </header>
-  <div id = "content">
-    
-
-        
+    <br>
+    Option
+        <div id="phrasediv">phrase: <textarea id="phrasetext"></textarea></div>
+        <div id="subredditdiv">subreddit: <textarea id="subreddittext"></textarea></div>
+        <div id="yeardiv">year: <textarea id="yeartext"></textarea></div>
+        <button id="submitbutton">Submit</button>
   </div>
 </div>
-</body>
- -->
+<div id="displayed-content">
+  <div id="visualization">
+    <h1 id="viz_title"></h1>
+    <div id="main_viz"></div> <!-- graphs -->
+    <div id="main_axis"></div>
+    <div id="main_tooltip"></div>
+  </div>
+</div>
 </html>
