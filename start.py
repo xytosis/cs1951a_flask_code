@@ -10,9 +10,19 @@ import Queue
 import os
 import csv
 from collections import defaultdict
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from oauth2client.client import GoogleCredentials
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk import tokenize
+import re
+from textstat.textstat import textstat
 
 application = Flask(__name__)
 SOLR_IP = "54.173.242.173:8983"
+credentials = GoogleCredentials.get_application_default()
+bigquery_pid = "project1-1258"
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))   # refers to application_top
 APP_STATIC = os.path.join(APP_ROOT, 'static')
 
@@ -23,49 +33,6 @@ def get_url(q, req, start):
 @application.route("/")
 def hello():
 	return render_template("start.html")
-
-@application.route("/subreddit_popularity", methods=["POST"])
-def subreddit_time_by_count_linechart():
-	subreddit = urllib.quote(request.form["text"])
-	ranges = []
-	cur_date = datetime.strptime("2007-10-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
-	end_date = datetime.strptime("2015-01-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
-	while cur_date < end_date:
-		ranges.append((cur_date, cur_date + relativedelta(months=1)))
-		cur_date = cur_date + relativedelta(months=1)
-	time_to_count = []
-	threads = []
-	q1 = []
-	q2 = []
-	for r in ranges:
-		start = r[0].strftime("%Y-%m-%dT%H:%M:%SZ")
-		end = r[1].strftime("%Y-%m-%dT%H:%M:%SZ")
-		req = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=(created_utc:[" + start + "%20TO%20" + end + "]%20AND%20subreddit:" +subreddit + ")"
-		req2 = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=created_utc:[" + start + "%20TO%20" + end + "]"
-		t = threading.Thread(target=get_url, args=(q1, req, start))
-		t2 = threading.Thread(target=get_url, args=(q2, req2, start))
-		threads.append(t)
-		threads.append(t2)
-		t.start()
-		t2.start()
-
-	for t in threads:
-		t.join()
-
-	start_to_stuff = defaultdict(lambda:list())
-
-	for q in q2:
-		start_to_stuff[q[0]].append(q[1])
-
-	for q in q1:
-		total = start_to_stuff[q[0]][0]
-		start_to_stuff[q[0]].append(float(q[1])/total)
-
-	final_array = []
-	for key, value in start_to_stuff.iteritems():
-		final_array.append([key[:10], 100*value[1]])
-
-	return json.dumps(sorted(final_array, key = lambda i : i[0]))
 
 # queries solr and returns frequency to time slice (month)
 @application.route("/freq_by_time", methods=["POST"])
@@ -219,6 +186,212 @@ def word_phrase_karma_subreddit():
 	for sb in top_subreddits:
 		top_subreddits_avg.append((sb[0], subreddit_sentiment[sb[0]]/float(sb[1])))
 	return json.dumps(sorted(top_subreddits_avg, key=lambda x: x[1], reverse=True))
+
+
+@application.route("/subreddit_popularity", methods=["POST"])
+def subreddit_time_by_count_linechart():
+	subreddit = urllib.quote(request.form["subreddit"])
+	ranges = []
+	cur_date = datetime.strptime("2007-10-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
+	end_date = datetime.strptime("2015-01-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
+	while cur_date < end_date:
+		ranges.append((cur_date, cur_date + relativedelta(months=1)))
+		cur_date = cur_date + relativedelta(months=1)
+	time_to_count = []
+	threads = []
+	q1 = []
+	q2 = []
+	for r in ranges:
+		start = r[0].strftime("%Y-%m-%dT%H:%M:%SZ")
+		end = r[1].strftime("%Y-%m-%dT%H:%M:%SZ")
+		req = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=(created_utc:[" + start + "%20TO%20" + end + "]%20AND%20subreddit:" +subreddit + ")"
+		req2 = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=created_utc:[" + start + "%20TO%20" + end + "]"
+		t = threading.Thread(target=get_url, args=(q1, req, start))
+		t2 = threading.Thread(target=get_url, args=(q2, req2, start))
+		threads.append(t)
+		threads.append(t2)
+		t.start()
+		t2.start()
+
+	for t in threads:
+		t.join()
+
+	start_to_stuff = defaultdict(lambda:list())
+
+	for q in q2:
+		start_to_stuff[q[0]].append(q[1])
+
+	for q in q1:
+		total = start_to_stuff[q[0]][0]
+		start_to_stuff[q[0]].append(float(q[1])/total)
+
+	final_array = []
+	for key, value in start_to_stuff.iteritems():
+		final_array.append([key[:10], 100*value[1]])
+
+	return json.dumps(sorted(final_array, key = lambda i : i[0]))
+
+
+@application.route("/sentiment", methods=["POST"])
+def sentiment():
+	phrase = urllib.quote(request.form["text"])
+	subreddit = urllib.quote(request.form["subreddit"])
+
+	sid = SentimentIntensityAnalyzer()
+	start_year = 2008
+	end_year = 2015
+	year_diff = end_year - start_year
+	results = [None] * year_diff
+	threads = [None] * year_diff
+
+
+	def getSentiment(year):
+		query = '''SELECT body, score 
+		FROM 
+		(SELECT subreddit, body, score, RAND() AS r1
+		FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
+		WHERE subreddit == \"''' + subreddit + '''\"
+		AND body != "[deleted]"
+		AND body != "[removed]"
+		AND REGEXP_MATCH(body, r'(?i:''' + phrase + ''')')
+		AND score > 1
+		ORDER BY r1
+		LIMIT 1000)'''
+
+		bigquery_service = build('bigquery', 'v2', credentials=credentials)
+		try:
+			query_request = bigquery_service.jobs()
+			query_data = {
+				'query': query,
+				'timeoutMs': 20000
+			}
+
+			query_response = query_request.query(
+				projectId=bigquery_pid,
+				body=query_data).execute()
+
+		except HttpError as err:
+			print('Error: {}'.format(err.content))
+			raise err
+
+		rows = query_response['rows']
+		sentiments = []
+		for row in rows:
+			body = row['f'][0]['v']
+			score = int(row['f'][1]['v'])
+			sentiment_values = []
+
+			lines_list = tokenize.sent_tokenize(body)
+			for sentence in lines_list:
+				if phrase.upper() in sentence.upper():#(regex.search(sentence)):			
+					s = sid.polarity_scores(sentence)
+					sentiment_values.append(s['compound'])
+			
+			comment_sentiment = float(sum(sentiment_values)) / len(sentiment_values)
+			
+			sentiments = sentiments + (score * [comment_sentiment])
+
+		results[year - start_year] = [str(year), sum(sentiments) / len(sentiments)]
+
+	for i in range(year_diff):
+		t = threading.Thread(target=getSentiment, args=([i + start_year]))
+		threads[i] = t
+		t.start()
+
+	for t in threads:
+		t.join()
+
+	return json.dumps(results)
+
+
+@application.route("/reading_level", methods=["POST"])
+def reading_level():
+	num_subreddits = 5
+	year = urllib.quote(request.form["year"])
+	if int(year) > 2014:
+		year += "_01"
+	results = [None] * num_subreddits
+	threads = [None] * num_subreddits
+
+	query1 = '''SELECT subreddit FROM 
+	(SELECT subreddit, count(*) AS c1 
+	FROM [fh-bigquery:reddit_comments.''' + str(year) + '''] 
+	GROUP BY subreddit 
+	ORDER BY c1 DESC LIMIT ''' + str(num_subreddits) + ''')'''
+
+	bigquery_service1 = build('bigquery', 'v2', credentials=credentials)
+	try:
+		query_request1 = bigquery_service1.jobs()
+		query_data1 = {
+			'query': query1,
+			'timeoutMs': 20000
+		}
+
+		query_response1 = query_request1.query(
+			projectId=bigquery_pid,
+			body=query_data1).execute()
+
+	except HttpError as err:
+		print('Error: {}'.format(err.content))
+		raise err
+
+	subreddits = [row['f'][0]['v'] for row in query_response1['rows']]
+
+	def getReadingLevel(subreddit):
+		query = '''SELECT body FROM 
+		(SELECT body, RAND() AS r1
+		FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
+		WHERE subreddit == "''' + subreddit + '''"  
+		AND body != "[deleted]"
+		AND body != "[removed]"
+		AND score > 1
+		ORDER BY r1
+		LIMIT 1000)
+		'''
+
+		bigquery_service = build('bigquery', 'v2', credentials=credentials)
+		try:
+			query_request = bigquery_service.jobs()
+			query_data = {
+				'query': query,
+				'timeoutMs': 20000
+			}
+
+			query_response = query_request.query(
+				projectId=bigquery_pid,
+				body=query_data).execute()
+
+		except HttpError as err:
+			print('Error: {}'.format(err.content))
+			raise err
+
+		rows = query_response['rows']
+
+		levels_sum = 0.0
+		levels_count = 0
+		for i in range(len(rows)):
+			text = rows[i]['f'][0]['v']
+			text = re.sub('([A-Za-z]+:\/\/[A-Za-z0-9]+\.[A-Za-z0-9]+[^\s-]*)|([A-Za-z]+\.[A-Za-z0-9]+\.[A-Za-z0-9]+[^\s-]*)', '', text) #url get rid
+			text = re.sub('\s\s+', ' ', text)
+			if textstat.sentence_count(text) > 0:
+				levels_sum += textstat.flesch_reading_ease(text)
+				levels_count += 1
+
+		average_level = 0.0
+		if levels_count > 0:
+			average_level = levels_sum / levels_count
+			results[subreddits.index(subreddit)] = [subreddit, 100.0 - average_level]
+
+	for i in range(num_subreddits):
+		t = threading.Thread(target=getReadingLevel, args=([subreddits[i]]))
+		threads[i] = t
+		t.start()
+
+	for t in threads:
+		t.join()
+
+	return json.dumps(results)
+
 
 if __name__ == "__main__":
     application.debug = True
