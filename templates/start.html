@@ -26,44 +26,56 @@
   
 </head>
 
-<body>
-<div class = "wrapper">
-  <header><img id = "header_image" class="center" src="static/images/cheats.jpg"/> </header>
-  <div id = "content">
-    <div id="side_panel">
-      <div id="about">
-        This is some Reddit Analysis application. Pick the interactive option and enter your input.
-      </div>
+<table id="orgtable">
+  <tr>
+    <th id="header" colspan="2"><img id = "header_image" class="center" src="static/images/cheats.jpg"/></th>
+  </tr>
+  <tr>
+    <td id="sidebar">
+      <div id="sidebar-container">
+        <div id="about">
+          This is some Reddit Analysis application. Pick the interactive option and enter your input.
+        </div>
 
-      <div>
-      	<select class="selectform" id="yaxis">
-      		<option disabled selected value> -- select an option -- </option>
-      		<option value="word_phrase">Word or phrase by Time</option>
-          <option value="word_phrase_subreddit">Word or phrase by Subreddit</option>
-          <option value="word_phrase_karma">Word or phrase karma stats</option>
-          <option value="karma_predict">Predict karma of comment</option>
-          <option value="word_phrase_sentiment">Sentiment of word/phrase by Subreddit</option>
-          <option value="word_phrase_karma_subreddit">Karma of word/phrase by Subreddit</option>
-          <option value="subreddit_popularity">Subreddit Popularity Over Time</option>
-      		<option value="other">Other</option>
-      	</select> Option
-      	<textarea id="inputarea"></textarea>
-      	<button id="submitbutton">Submit</button>
-      </div>
-
-    </div> <!-- side panel -->
-
-    <div id="main">
-      <div id="main_stuff">
-      	<h1 id="viz_title"></h1>
-      	<div id="main_viz"></div> <!-- graphs -->
+        <div>
+          <select class="selectform" id="yaxis">
+            <option disabled selected value> -- select an option -- </option>
+            <option value="word_phrase">Word or phrase by Time</option>
+            <option value="word_phrase_subreddit">Word or phrase by Subreddit</option>
+            <option value="word_phrase_karma">Word or phrase karma stats</option>
+            <option value="karma_predict">Predict karma of comment</option>
+            <option value="word_phrase_sentiment">Sentiment of word/phrase by Subreddit</option>
+            <option value="word_phrase_karma_subreddit">Karma of word/phrase by Subreddit</option>
+            <option value="subreddit_popularity">Subreddit Popularity Over Time</option>
+            <option value="other">Other</option>
+          </select>
+          <br>
+          Option
+          <textarea id="inputarea"></textarea>
+          <button id="submitbutton">Submit</button>
+        </div>
+      </div> <!-- side panel -->
+    </td>
+    <td id="viz-cell">
+      <div id="visualization">
+        <h1 id="viz_title"></h1>
+        <div id="main_viz"></div> <!-- graphs -->
         <div id="main_axis"></div>
-      	<div id="main_tooltip"></div>
+        <div id="main_tooltip"></div>
       </div>
-        
-    </div> <!-- main -->
-  </div> <!-- content -->
-</div> <!-- wrapper -->
-</body>
+    </td>
+  </tr>
+</table>
 
+<!-- <body>
+<div class = "wrapper">
+  <header> </header>
+  <div id = "content">
+    
+
+        
+  </div>
+</div>
+</body>
+ -->
 </html>

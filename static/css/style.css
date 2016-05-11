@@ -14,22 +14,39 @@ html {
 
 .wrapper {
   height:100vh;
-  display:flex;
+  display:inline-block;
   flex-direction: column;
 }
 
 #content{
-    display:inline;
+    display:inline-block;
 }
 
 #header_image{
     height:150px;
 }
 
-header{
+#orgtable{
+    height: 100%;
+    width: 100%;
+    border-spacing: 0;
+}
+
+#header{
 width:100%;
 text-align:center;
 background-color: #D3F3FE;
+height: 1px;
+}
+
+#sidebar{
+    width: 1%;
+    background-color: #cee3f8;
+    vertical-align: text-top;
+}
+
+#sidebar-container{
+    width: 400px;
 }
 
 #viz_title {
@@ -41,7 +58,13 @@ background-color: #D3F3FE;
 	position: fixed;
 	height: 100%;
 	width: 400px;
-	background-color: #cee3f8;
+}
+
+#viz-cell {
+    vertical-align: top;
+}
+
+#visualization{
 }
 
 #main {
