@@ -236,6 +236,10 @@ input.radio:checked ~ label {
     color: #777;
 }
 
+.explanations{
+    display:none;
+}
+
 #phrasediv {
     display: none;
 }

@@ -16,6 +16,8 @@ $(document).ready(function() {
 	});
 
 	$("#yaxis").change(function() {
+		$(".explanations").hide();
+
 		var option = $(this).val();
 		if (option == "word_phrase_karma_subreddit" || 
 			option == "karma_predict" || 
@@ -23,7 +25,29 @@ $(document).ready(function() {
 			option == "word_phrase_subreddit" || 
 			option == "word_phrase_karma" ||
 			option == "sentiment") {
+			console.log("pressed this")
 			$("#phrasediv").show();
+
+			if (option == "word_phrase_karma_subreddit") {
+				$("#KarmaVsSubredditExplanation").show();
+			}
+			if (option == "karma_predict") {
+				$("#KarmaPredictExplanation").show();
+			}
+			if (option == "word_phrase"){
+				console.log("pressed this2");
+				$("#WordVsTimeExplanation").show();
+			}
+			if (option == "word_phrase_subreddit"){
+				$("#WordVsSubredditExplanation").show();
+			}
+			if (option == "word_phrase_karma"){
+				$("#WordVsKarmaExplanation").show();
+			}
+			if (option == "sentiment") {
+				$("#SentimentVsSubredditExplanation").show();
+			}
+
 		} else {
 			$("#phrasediv").hide();
 		}
@@ -31,12 +55,15 @@ $(document).ready(function() {
 		if (option == "subreddit_popularity" ||
 			option == "sentiment") {
 			$("#subredditdiv").show();
+			$("#SubredditPopularityExplanation").show();
+
 		} else {
 			$("#subredditdiv").hide();
 		}
 
 		if (option == "reading_level") {
 			$("#yeardiv").show();
+			$("#ReadingLevelExplanation").show();
 		} else {
 			$("#yeardiv").hide();
 		}
