@@ -18,6 +18,9 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk import tokenize
 import re
 from textstat.textstat import textstat
+from collections import Counter
+from nltk.corpus import stopwords
+from stop_words import get_stop_words
 
 application = Flask(__name__)
 SOLR_IP = "54.173.242.173:8983"
@@ -33,34 +36,34 @@ def init_subreddit_map():
 
 	query = '''
 	SELECT subreddit FROM (SELECT subreddit, count(*) AS c1 
-	    FROM [fh-bigquery:reddit_comments.2016_01]
-	    GROUP BY subreddit 
-	    ORDER BY c1 DESC LIMIT 10)
+		FROM [fh-bigquery:reddit_comments.2016_01]
+		GROUP BY subreddit 
+		ORDER BY c1 DESC LIMIT 10)
 	'''
 	try:
-	    query_request = bigquery_service.jobs()
-	    query_data = {
-	        'query': (query)
-	    }
+		query_request = bigquery_service.jobs()
+		query_data = {
+			'query': (query)
+		}
 
-	    query_response = query_request.query(
-	        projectId="project1-1258",
-	        body=query_data).execute()
+		query_response = query_request.query(
+			projectId="project1-1258",
+			body=query_data).execute()
 
-	    for row in query_response['rows']:
-	        subreddit = row['f'][0]['v']
-	        subreddit_map[subreddit.lower()] = subreddit
+		for row in query_response['rows']:
+			subreddit = row['f'][0]['v']
+			subreddit_map[subreddit.lower()] = subreddit
 
 	except HttpError as err:
-	    print('Error: {}'.format(err.content))
-	    raise err
+		print('Error: {}'.format(err.content))
+		raise err
 
 init_subreddit_map()
 
 
 def get_url(q, req, start):
-    response = json.loads(urllib2.urlopen(req).read())
-    q.append([start, response["response"]["numFound"]])
+	response = json.loads(urllib2.urlopen(req).read())
+	q.append([start, response["response"]["numFound"]])
 
 @application.route("/")
 def hello():
@@ -69,52 +72,52 @@ def hello():
 # queries solr and returns frequency to time slice (month)
 @application.route("/freq_by_time", methods=["POST"])
 def freq_by_time():
-    text = urllib.quote(request.form["text"])
-    ranges = []
-    cur_date = datetime.strptime("2007-10-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
-    end_date = datetime.strptime("2015-01-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
-    while cur_date < end_date:
-        ranges.append((cur_date, cur_date + relativedelta(months=1)))
-        cur_date = cur_date + relativedelta(months=1)
-    time_to_count = []
-    threads = []
-    q1 = []
-    q2 = []
-    for r in ranges:
-        start = r[0].strftime("%Y-%m-%dT%H:%M:%SZ")
-        end = r[1].strftime("%Y-%m-%dT%H:%M:%SZ")
-        req = "http://" + SOLR_IP + "/solr/comments/select?q=body:\"" + text + "\"&rows=0&wt=json&fq=created_utc:[" + start + "%20TO%20" + end + "]"
-        req2 = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=created_utc:[" + start + "%20TO%20" + end + "]"
-        t = threading.Thread(target=get_url, args=(q1, req, start))
-        t2 = threading.Thread(target=get_url, args=(q2, req2, start))
-        threads.append(t)
-        threads.append(t2)
-        t.start()
-        t2.start()
-        #time_to_count.append([start, response["response"]["numFound"], response2["response"]["numFound"]])
+	text = urllib.quote(request.form["text"])
+	ranges = []
+	cur_date = datetime.strptime("2007-10-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
+	end_date = datetime.strptime("2015-01-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
+	while cur_date < end_date:
+		ranges.append((cur_date, cur_date + relativedelta(months=1)))
+		cur_date = cur_date + relativedelta(months=1)
+	time_to_count = []
+	threads = []
+	q1 = []
+	q2 = []
+	for r in ranges:
+		start = r[0].strftime("%Y-%m-%dT%H:%M:%SZ")
+		end = r[1].strftime("%Y-%m-%dT%H:%M:%SZ")
+		req = "http://" + SOLR_IP + "/solr/comments/select?q=body:\"" + text + "\"&rows=0&wt=json&fq=created_utc:[" + start + "%20TO%20" + end + "]"
+		req2 = "http://" + SOLR_IP + "/solr/comments/select?rows=0&wt=json&q=created_utc:[" + start + "%20TO%20" + end + "]"
+		t = threading.Thread(target=get_url, args=(q1, req, start))
+		t2 = threading.Thread(target=get_url, args=(q2, req2, start))
+		threads.append(t)
+		threads.append(t2)
+		t.start()
+		t2.start()
+		#time_to_count.append([start, response["response"]["numFound"], response2["response"]["numFound"]])
 
-    for t in threads:
-        t.join()
+	for t in threads:
+		t.join()
 
-    start_to_stuff = dict()
+	start_to_stuff = dict()
 
-    for q in q1:
-        if q[0] in start_to_stuff:
-            start_to_stuff[q[0]].append(q[1])
-        else:
-            start_to_stuff[q[0]] = [q[1]]
+	for q in q1:
+		if q[0] in start_to_stuff:
+			start_to_stuff[q[0]].append(q[1])
+		else:
+			start_to_stuff[q[0]] = [q[1]]
 
-    for q in q2:
-        if q[0] in start_to_stuff:
-            start_to_stuff[q[0]].append(q[1])
-        else:
-            start_to_stuff[q[0]] = [q[1]]
+	for q in q2:
+		if q[0] in start_to_stuff:
+			start_to_stuff[q[0]].append(q[1])
+		else:
+			start_to_stuff[q[0]] = [q[1]]
 
-    final_array = []
-    for key in start_to_stuff.keys():
-        final_array.append((key, start_to_stuff[key][0], start_to_stuff[key][1]))
+	final_array = []
+	for key in start_to_stuff.keys():
+		final_array.append((key, start_to_stuff[key][0], start_to_stuff[key][1]))
 
-    return json.dumps(sorted(final_array, key=lambda x: x[0]))
+	return json.dumps(sorted(final_array, key=lambda x: x[0]))
 
 
 # queries solr and returns frequency to subreddit
@@ -196,7 +199,6 @@ def word_phrase_karma_subreddit():
 		top_subreddits_avg.append((sb[0], subreddit_sentiment[sb[0]]/float(sb[1])))
 	return json.dumps(sorted(top_subreddits_avg, key=lambda x: x[1], reverse=True))
 
-
 @application.route("/subreddit_popularity", methods=["POST"])
 def subreddit_time_by_count_linechart():
 	subreddit = urllib.quote(request.form["subreddit"])
@@ -241,55 +243,53 @@ def subreddit_time_by_count_linechart():
 
 	return json.dumps(sorted(final_array, key = lambda i : i[0]))
 
-
-
 def getSentiment(year):
-    query = '''SELECT body, score 
-    FROM 
-    (SELECT subreddit, body, score, RAND() AS r1
-    FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
-    WHERE subreddit == \"''' + subreddit + '''\"
-    AND body != "[deleted]"
-    AND body != "[removed]"
-    AND REGEXP_MATCH(body, r'(?i:''' + phrase + ''')')
-    AND score > 1
-    ORDER BY r1
-    LIMIT 2000)'''
+	query = '''SELECT body, score 
+	FROM 
+	(SELECT subreddit, body, score, RAND() AS r1
+	FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
+	WHERE subreddit == \"''' + subreddit + '''\"
+	AND body != "[deleted]"
+	AND body != "[removed]"
+	AND REGEXP_MATCH(body, r'(?i:''' + phrase + ''')')
+	AND score > 1
+	ORDER BY r1
+	LIMIT 2000)'''
 
-    bigquery_service = build('bigquery', 'v2', credentials=credentials)
-    try:
-        query_request = bigquery_service.jobs()
-        query_data = {
-            'query': query,
-            'timeoutMs': 30000
-        }
+	bigquery_service = build('bigquery', 'v2', credentials=credentials)
+	try:
+		query_request = bigquery_service.jobs()
+		query_data = {
+			'query': query,
+			'timeoutMs': 30000
+		}
 
-        query_response = query_request.query(
-            projectId=bigquery_pid,
-            body=query_data).execute()
+		query_response = query_request.query(
+			projectId=bigquery_pid,
+			body=query_data).execute()
 
-    except HttpError as err:
-        print('Error: {}'.format(err.content))
-        raise err
+	except HttpError as err:
+		print('Error: {}'.format(err.content))
+		raise err
 
-    rows = query_response['rows']
-    sentiments = []
-    for row in rows:
-        body = row['f'][0]['v']
-        score = int(row['f'][1]['v'])
-        sentiment_values = []
+	rows = query_response['rows']
+	sentiments = []
+	for row in rows:
+		body = row['f'][0]['v']
+		score = int(row['f'][1]['v'])
+		sentiment_values = []
 
-        lines_list = tokenize.sent_tokenize(body)
-        for sentence in lines_list:
-            if phrase.upper() in sentence.upper():#(regex.search(sentence)):            
-                s = sid.polarity_scores(sentence)
-                sentiment_values.append(s['compound'])
-        
-        comment_sentiment = float(sum(sentiment_values)) / len(sentiment_values)
-        
-        sentiments = sentiments + (score * [comment_sentiment])
+		lines_list = tokenize.sent_tokenize(body)
+		for sentence in lines_list:
+			if phrase.upper() in sentence.upper():#(regex.search(sentence)):            
+				s = sid.polarity_scores(sentence)
+				sentiment_values.append(s['compound'])
+		
+		comment_sentiment = float(sum(sentiment_values)) / len(sentiment_values)
+		
+		sentiments = sentiments + (score * [comment_sentiment])
 
-    results[year - start_year] = [str(year), sum(sentiments) / len(sentiments)]
+	results[year - start_year] = [str(year), sum(sentiments) / len(sentiments)]
 
 @application.route("/sentiment", methods=["POST"])
 def sentiment():
@@ -314,6 +314,58 @@ def sentiment():
 
 	return json.dumps(results)
 
+
+def getWordcount(year, subreddit):
+	query = '''SELECT body, RAND() AS r1
+	FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
+	WHERE subreddit == \"''' + subreddit + '''\"
+	AND body != "[deleted]"
+	AND body != "[removed]"
+	AND score > 1
+	ORDER BY r1
+	LIMIT 1000'''
+
+	bigquery_service = build('bigquery', 'v2', credentials=credentials)
+	try:
+		query_request = bigquery_service.jobs()
+		query_data = {
+		'query': query,
+		'timeoutMs': 30000
+		}
+
+		query_response = query_request.query(
+			projectId=bigquery_pid,
+			body=query_data).execute()
+
+	except HttpError as err:
+		print('Error: {}'.format(err.content))
+		raise err
+
+	rows = query_response['rows']
+	count = Counter()
+
+	for row in rows:
+		body = row['f'][0]['v']
+		content = re.sub('\s+', ' ', body)  # condense all whitespace
+		content = re.sub('[^A-Za-z ]+', '', content)  # remove non-alpha chars
+		words = content.lower().split()
+		stops = set(get_stop_words('en'))
+		stops.update(stopwords.words('english'))
+
+		words = [word for word in words if word not in stopwords.words('english')]
+		count.update(words)
+
+	return count.most_common(50)
+
+@application.route("/wordcount", methods=["POST"])
+def wordcount():
+	year = urllib.quote(request.form["year"])
+	subreddit = urllib.quote(request.form["subreddit"])
+
+	subreddit = subreddit_map[subreddit.lower()]
+	stuff = getWordcount(year, subreddit)
+	stuff = [{"text" : el[0], "size": el[1]} for el in stuff]
+	return json.dumps(stuff)
 
 @application.route("/reading_level", methods=["POST"])
 def reading_level():
@@ -405,5 +457,5 @@ def reading_level():
 
 
 if __name__ == "__main__":
-    application.debug = True
-    application.run(host='0.0.0.0')
+	application.debug = True
+	application.run(host='0.0.0.0')

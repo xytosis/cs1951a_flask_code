@@ -68,6 +68,15 @@ $(document).ready(function() {
 		} else {
 			$("#yeardiv").hide();
 		}
+
+		if (option == "wordcount") {
+			$("#yeardiv").show();
+			$("#subredditdiv").show();
+			$("#WordcountExplanation").show();
+		} else {
+			$("#yeardiv").hide();
+			$("#subredditdiv").hide();
+		}
 	})
 
 	$("#submitbutton").click(function() {
@@ -141,6 +150,14 @@ $(document).ready(function() {
 			$.post("/reading_level", {"year":year}, function(data) {
 				$("#loading").hide()
 				reading_level(JSON.parse(data));
+			});
+		}
+
+		if (yaxis == "wordcount"){
+			$.post("/wordcount", {"year":year, "subreddit":subreddit}, function(data) {
+				$("#loading").hide()
+				console.log("EREHRERJELRKERH")
+				wordcount(JSON.parse(data));
 			});
 		}
 	}
