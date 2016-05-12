@@ -50,7 +50,6 @@ $(document).ready(function() {
 
 		if (option == "subreddit_popularity" ||
 			option == "sentiment") {
-			console.log("show")
 			$("#subredditdiv").show();
 			if (option == "subreddit_popularity") {
 				$("#SubredditPopularityExplanation").show();
@@ -83,18 +82,19 @@ $(document).ready(function() {
 	function submitFunction() {
 		clear_canvas();
 		var yaxis = $("#yaxis").val();
-		var text = $("#phrasetext").val();
+		var text1 = $("#phrasetext").val();
 		var text2 = $("#subreddittext").val();
 		var text3 = $("#yeartext").val();
 		if (text2 != "") {
-			text += ", " + text2;
+			text1 += ", " + text2;
 		}
 		if (text3 != "") {
-			text += ", " + text3;
+			text1 += ", " + text3;
 		}
-		if (text[0] == ",") {
-			text = text.substring(1, text.length);
+		if (text1[0] == ",") {
+			text1 = text1.substring(1, text1.length);
 		}
+		var text = $("#phrasetext").val();
 		var subreddit = $("#subreddittext").val();
 		var year = $("#yeartext").val();
 		$("#viz_title").html("Query: " + text)

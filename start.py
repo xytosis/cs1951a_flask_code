@@ -247,8 +247,7 @@ def subreddit_time_by_count_linechart():
 def sentiment():
 	phrase = urllib.quote(request.form["text"])
 	subreddit = urllib.quote(request.form["subreddit"])
-	subreddit = subreddit_map[subreddit.lower()]
-
+	subreddit = subreddit_map[subreddit.lower()]	
 	sid = SentimentIntensityAnalyzer()
 	start_year = 2008
 	end_year = 2017
