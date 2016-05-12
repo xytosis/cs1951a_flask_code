@@ -33,11 +33,13 @@
 <div id="display-container"></div>
 <div id="background"></div>
 <div id="banner">
-  <img id="banner-image" src="static/images/redditguy.png"/>
+  <a href = "/"><img id="banner-image" src="static/images/redditguy.png"/></a>
   <div id="banner-text">reddata</div>
 </div>
 <div id="side-menu">
-  <div id="intro-text">This is some Reddit Analysis application. Pick the interactive option and enter your input.</div>
+  <div id="intro-text">This tool analyzes Reddit data to give a picture of the evolution over time of one of the world's largest web-forums. 
+    <br><br>
+    Choose what statistic you would like to explore and input the appropriate text fields. </div><br>
   <br>
   <div id="query-area">
     <select class="selectform" id="yaxis">
@@ -81,6 +83,22 @@
 </div> <!-- side menu -->
 <div id="displayed-content">
   <div id="visualization">
+    <div id = "introduction">
+      <h1>Hello! Welcome to our final project web page. </h1>
+      <p>We have implemented a number of visualizations for reddit data regarding words/phrases, subreddits, karma (comment scores), and time. We have implemented the various ML algorithms:
+
+        <br>
+        <br>
+        Topic Modeling
+        <br>
+        Flesch-Kincaid
+        <br>
+        Logistic Regression
+        <br>
+        Sentiment Analysis
+        <br>
+      </p>
+    </div>
     <h1 id="viz_title"></h1>
     <div id="main_viz"></div> <!-- graphs -->
     <div id="main_axis"></div>

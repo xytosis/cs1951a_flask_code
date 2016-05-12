@@ -4,17 +4,6 @@ $(document).ready(function() {
 		$("#main_viz").html("");
 	}
 
-	$('#samplebox').click(function() {
-    	if($("#samplebox").is(':checked')){
-    		$("#main_stuff").hide()
-    		$("#sample_stuff").show()
-    	}
-		else {
-    		$("#sample_stuff").hide()
-    		$("#main_stuff").show()
-		}
-	});
-
 	$("#yaxis").change(function() {
 		$(".explanations").hide();
 		$(".inputdiv").hide();
@@ -90,6 +79,7 @@ $(document).ready(function() {
 
 	function submitFunction() {
 		clear_canvas();
+		$("#introduction").hide();
 		var yaxis = $("#yaxis").val();
 		var text1 = $("#phrasetext").val();
 		var text2 = $("#subreddittext").val();

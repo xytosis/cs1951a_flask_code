@@ -481,7 +481,7 @@ def topic_modeling():
 	# Create p_stemmer of class PorterStemmer
 	p_stemmer = PorterStemmer()
 
-	topic_num = 5
+	topic_num = 10
 	# list for tokenized documents in loop
 	texts = []
 
@@ -493,7 +493,7 @@ def topic_modeling():
 		AND body != "[removed]"
 		AND score > 1
 		ORDER BY r1
-		LIMIT 500)
+		LIMIT 1000)
 		'''
 
 	bigquery_service = build('bigquery', 'v2', credentials=credentials)
@@ -543,7 +543,7 @@ def topic_modeling():
 		# generate LDA model
 		ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=topic_num, id2word = dictionary, passes=10)
 		# print(ldamodel[0])
-		for topic in ldamodel.show_topics(num_topics=5, num_words=5):
+		for topic in ldamodel.show_topics(num_topics=topic_num, num_words=5):
 		    line = topic[1].decode('utf-8')
 		    splitted = line.split(' + ')
 		    topic = []

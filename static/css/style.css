@@ -80,6 +80,15 @@ button {
 
 #intro-text {
     font-size: 18px;
+    font-family: "Segoe UI";
+}
+
+#introduction {
+    font-family: "Segoe UI";
+}
+p{
+    font-size: 16px;
+    font-weight: normal;
 }
 
 #query-area{
@@ -121,51 +130,8 @@ html {
 	margin: 0px;
 }
 
-.wrapper {
-  height:100vh;
-  display:inline-block;
-  flex-direction: column;
-}
-
-#content{
-    display:inline-block;
-}
-
-#header_image{
-    height:150px;
-}
-
-#orgtable{
-    height: 100%;
-    width: 100%;
-    border-spacing: 0;
-}
-
-#header{
-width:100%;
-text-align:center;
-background-color: #D3F3FE;
-height: 1px;
-}
-
-#sidebar{
-    width: 1%;
-    background-color: #cee3f8;
-    vertical-align: text-top;
-}
-
-#sidebar-container{
-    width: 400px;
-}
-
 #viz_title {
     float: left;
-}
-
-#side_panel {
-	position: fixed;
-	height: 100%;
-	width: 400px;
 }
 
 #viz-cell {
@@ -222,52 +188,6 @@ label {
   width: 200px;
   border-radius: 3px;
   border: 1px solid #D1D3D4
-}
-
-input.radio:empty {
-    margin-left: -999px;
-}
-
-input.radio:empty ~ label {
-    position: relative;
-    float: left;
-    line-height: 2.5em;
-    text-indent: 3.25em;
-    margin-top: 2em;
-    cursor: pointer;
-}
-
-input.radio:empty ~ label:before {
-    position: absolute;
-    display: block;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    content: '';
-    width: 2.5em;
-    background: #D1D3D4;
-    border-radius: 3px 0 0 3px;
-}
-
-input.radio:hover:not(:checked) ~ label:before {
-    content:'\2714';
-    text-indent: .9em;
-    color: #C2C2C2;
-}
-
-input.radio:hover:not(:checked) ~ label {
-    color: #888;
-}
-
-input.radio:checked ~ label:before {
-    content:'\2714';
-    text-indent: .9em;
-    color: #9CE2AE;
-    background-color: #4DCB6D;
-}
-
-input.radio:checked ~ label {
-    color: #777;
 }
 
 .explanations{
@@ -343,13 +263,7 @@ div.tooltip {
 
 .focus circle {
     fill: none;
-    stroke: steelblue;
+    stroke: #ff5700;
     position:absolute;
     z-index:100;
 }
-
-.topictable {font-family: 'Helvetica Neue', Helvetica; font-weight: 300; padding: 20px; font-size: 40px}
-th { text-align: left; }
-th, td { padding: 0 1em 0.5ex 0;}
-th.center, td.center { text-align: center; }
-th.num, td.num { text-align: right; 
