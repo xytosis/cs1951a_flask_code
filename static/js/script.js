@@ -16,7 +16,8 @@ $(document).ready(function() {
 			option == "word_phrase" || 
 			option == "word_phrase_subreddit" || 
 			option == "word_phrase_karma" ||
-			option == "sentiment") {
+			option == "sentiment" ||
+			option == "sentiment_by_subreddit") {
 			$("#phrasediv").show();
 
 			if (option == "word_phrase_karma_subreddit") {
@@ -35,7 +36,10 @@ $(document).ready(function() {
 				$("#WordVsKarmaExplanation").show();
 			}
 			if (option == "sentiment") {
-				$("#SentimentVsSubredditExplanation").show();
+				$("#SentimentByTimeExplanation").show();
+			}
+			if (option == "sentiment_by_subreddit") {
+				$("#SentimentBySubredditExplanation").show();
 			}
 		} 
 
@@ -58,6 +62,9 @@ $(document).ready(function() {
 		if (option == "topic_modeling") {
 			$("#yeardiv").show();
 		} 
+		if (option == "sentiment_by_subreddit") {
+			$("#yeardiv").show();
+		}
 
 		if (option == "wordcount") {
 			$("#yeardiv").show();
@@ -145,6 +152,15 @@ $(document).ready(function() {
 				linechart(JSON.parse(data), false, true, "time", "sentiment");
 			});
 		}
+		if (yaxis == "sentiment_by_subreddit"){
+			console.log("here")
+			$.post("/sentiment_by_subreddit", {"text":text,"year":year}, function(data) {
+				$("#loading").hide()
+				barchart(JSON.parse(data), "subreddit", "sentiment");
+			});
+		}
+
+
 
 		if (yaxis == "reading_level"){
 			$.post("/reading_level", {"year":year}, function(data) {

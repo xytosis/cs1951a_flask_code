@@ -323,6 +323,66 @@ def sentiment():
 	results = [r for r in results if r != None]
 	return json.dumps(results)
 
+@application.route("/sentiment_by_subreddit", methods=["POST"])
+def sentiment_by_subreddit():
+	phrase = urllib.quote(request.form["text"])
+	year = urllib.quote(request.form["year"])
+
+	sid = SentimentIntensityAnalyzer()
+
+	year_str = str(year)
+	if int(year) > 2014:
+		year_str += "_01"
+
+	query = '''SELECT subreddit, body, score FROM
+	(SELECT subreddit, body, score, RAND() AS r1
+	FROM [fh-bigquery:reddit_comments.''' + str(year_str) + ''']
+	WHERE REGEXP_MATCH(body, r'(?i:''' + phrase + ''')')
+	AND subreddit IN (SELECT subreddit FROM (SELECT subreddit, count(*) AS c1 FROM [fh-bigquery:reddit_comments.''' + year + '''] WHERE REGEXP_MATCH(body, r'(?i:'''+phrase+''')') AND score > 1 GROUP BY subreddit ORDER BY c1 DESC LIMIT 10))
+	ORDER BY r1
+	LIMIT 5000)
+	'''
+	bigquery_service = build('bigquery', 'v2', credentials=credentials)
+	try:
+		query_request = bigquery_service.jobs()
+		query_data = {
+			'query': query,
+			'timeoutMs': 30000
+		}
+
+		query_response = query_request.query(
+			projectId=bigquery_pid,
+			body=query_data).execute()
+
+	except HttpError as err:
+		print('Error: {}'.format(err.content))
+		raise err
+	
+	subreddit_sentiments = defaultdict(list)
+	subreddit_total = defaultdict(int)
+	
+	if 'rows' in query_response:
+		rows = query_response['rows']
+		sentiments = []
+		for row in rows:
+			subreddit = row['f'][0]['v']
+			body = row['f'][1]['v']
+			score = int(row['f'][2]['v'])
+			sentiment_values = []
+			
+			lines_list = tokenize.sent_tokenize(body)
+			for sentence in lines_list:
+				if phrase.upper() in sentence.upper():#(regex.search(sentence)):
+					s = sid.polarity_scores(sentence)
+					sentiment_values.append(s['compound'])
+		
+			comment_sentiment = float(sum(sentiment_values))/len(sentiment_values)
+			subreddit_sentiments[subreddit].append((comment_sentiment, score))
+			subreddit_total[subreddit] += int(score)
+
+	subreddit_sentiments = {subreddit:1 + float(sum([float(pair[0])*float(pair[1]) for pair in sentiment_list]))/subreddit_total[subreddit] for subreddit, sentiment_list in subreddit_sentiments.items()}
+	result = sorted(subreddit_sentiments.items(), key = lambda(k,v): (-v,k))
+	return json.dumps(result)
 
 def getWordcount(year, subreddit):
 	query = '''SELECT body, RAND() AS r1

@@ -49,6 +49,7 @@
       <option value="word_phrase_karma">Word vs. Karma</option>
 
       <option value="sentiment">Sentiment vs. Time</option>
+      <option value="sentiment_by_subreddit">Sentiment vs. Subreddit</option>
       <option value="word_phrase_karma_subreddit">Karma vs. Subreddit</option>
       
       <option value="subreddit_popularity">Subreddit Popularity vs. Time</option>
@@ -64,12 +65,14 @@
         <div class = "explanations" id = "WordVsTimeExplanation">This shows the frequency of specific words over time, broken up by percentage of comments containing this word on the left, and number of total comments containing this word on the right.</div>
         <div class = "explanations" id = "WordVsSubredditExplanation">This shows the percentage of comments containing this word in order of the subreddits with the highest percentage of comments containing this word.</div>
         <div class = "explanations" id = "WordVsKarmaExplanation">This gives a breakdown of karma given to comments containing this word.</div>
-        <div class = "explanations" id = "SentimentVsSubredditExplanation">This performs sentiment analysis on a particular word/phrase over time.</div>
+        <div class = "explanations" id = "SentimentByTimeExplanation">This performs sentiment analysis on a particular word/phrase over time.</div>
         <div class = "explanations" id = "KarmaVsSubredditExplanation">This gives average karma given per subreddit in order of highest average karma.</div>
         <div class = "explanations" id = "KarmaPredictExplanation">This uses ridge regression to predict the karma of a given comment.</div>
         <div class = "explanations" id = "SubredditPopularityExplanation">This gives the popularity of a given subreddit over time, by the percentage of comments in this subreddit of all total comments.</div>
         <div class = "explanations" id = "ReadingLevelExplanation">This gives the average reading level of a few different subreddits for a given year.</div>
         <div class = "explanations" id = "TopicModelingExplanation">This determines topics of a subreddit for a particular year by word clustering.</div>
+        <div class = "explanations" id = "SentimentBySubredditExplanation">This gives sentiment by subreddit of a particular word/phrase on a scale from 0 to 2 (anything under 1 is negative sentiment.) We query the subreddits with the highest mentions of this phrase and perform sentiment analysis on a random sampling of comments from these subreddits.</div>
+
       </div>
 
       <br>
@@ -97,6 +100,8 @@
         <br>
         Sentiment Analysis
         <br>
+
+        Please be patient with us as we are querying a lot of data, and this can sometimes take up to 30 seconds or more.
       </p>
     </div>
     <h1 id="viz_title"></h1>
