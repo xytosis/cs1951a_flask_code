@@ -38,7 +38,7 @@ def init_subreddit_map():
 	SELECT subreddit FROM (SELECT subreddit, count(*) AS c1 
 		FROM [fh-bigquery:reddit_comments.2016_01]
 		GROUP BY subreddit 
-		ORDER BY c1 DESC LIMIT 10)
+		ORDER BY c1 DESC LIMIT 10000)
 	'''
 	try:
 		query_request = bigquery_service.jobs()
@@ -75,7 +75,7 @@ def freq_by_time():
 	text = urllib.quote(request.form["text"])
 	ranges = []
 	cur_date = datetime.strptime("2007-10-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
-	end_date = datetime.strptime("2015-01-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
+	end_date = datetime.strptime("2016-04-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
 	while cur_date < end_date:
 		ranges.append((cur_date, cur_date + relativedelta(months=1)))
 		cur_date = cur_date + relativedelta(months=1)
@@ -243,54 +243,6 @@ def subreddit_time_by_count_linechart():
 
 	return json.dumps(sorted(final_array, key = lambda i : i[0]))
 
-def getSentiment(year):
-	query = '''SELECT body, score 
-	FROM 
-	(SELECT subreddit, body, score, RAND() AS r1
-	FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
-	WHERE subreddit == \"''' + subreddit + '''\"
-	AND body != "[deleted]"
-	AND body != "[removed]"
-	AND REGEXP_MATCH(body, r'(?i:''' + phrase + ''')')
-	AND score > 1
-	ORDER BY r1
-	LIMIT 2000)'''
-
-	bigquery_service = build('bigquery', 'v2', credentials=credentials)
-	try:
-		query_request = bigquery_service.jobs()
-		query_data = {
-			'query': query,
-			'timeoutMs': 30000
-		}
-
-		query_response = query_request.query(
-			projectId=bigquery_pid,
-			body=query_data).execute()
-
-	except HttpError as err:
-		print('Error: {}'.format(err.content))
-		raise err
-
-	rows = query_response['rows']
-	sentiments = []
-	for row in rows:
-		body = row['f'][0]['v']
-		score = int(row['f'][1]['v'])
-		sentiment_values = []
-
-		lines_list = tokenize.sent_tokenize(body)
-		for sentence in lines_list:
-			if phrase.upper() in sentence.upper():#(regex.search(sentence)):            
-				s = sid.polarity_scores(sentence)
-				sentiment_values.append(s['compound'])
-		
-		comment_sentiment = float(sum(sentiment_values)) / len(sentiment_values)
-		
-		sentiments = sentiments + (score * [comment_sentiment])
-
-	results[year - start_year] = [str(year), sum(sentiments) / len(sentiments)]
-
 @application.route("/sentiment", methods=["POST"])
 def sentiment():
 	phrase = urllib.quote(request.form["text"])
@@ -299,10 +251,64 @@ def sentiment():
 
 	sid = SentimentIntensityAnalyzer()
 	start_year = 2008
-	end_year = 2015
+	end_year = 2017
 	year_diff = end_year - start_year
 	results = [None] * year_diff
 	threads = [None] * year_diff
+
+
+	def getSentiment(year):
+		year_str = str(year)
+		if int(year) > 2014:
+			year_str += "_01"
+
+		query = '''SELECT body, score 
+		FROM 
+		(SELECT subreddit, body, score, RAND() AS r1
+		FROM [fh-bigquery:reddit_comments.''' + str(year_str) + ''']
+		WHERE subreddit == \"''' + subreddit + '''\"
+		AND body != "[deleted]"
+		AND body != "[removed]"
+		AND REGEXP_MATCH(body, r'(?i:''' + phrase + ''')')
+		AND score > 1
+		ORDER BY r1
+		LIMIT 1000)'''
+
+		bigquery_service = build('bigquery', 'v2', credentials=credentials)
+		try:
+			query_request = bigquery_service.jobs()
+			query_data = {
+				'query': query,
+				'timeoutMs': 30000
+			}
+
+			query_response = query_request.query(
+				projectId=bigquery_pid,
+				body=query_data).execute()
+
+		except HttpError as err:
+			print('Error: {}'.format(err.content))
+			raise err
+
+		if 'rows' in query_response:
+			rows = query_response['rows']
+			sentiments = []
+			for row in rows:
+				body = row['f'][0]['v']
+				score = int(row['f'][1]['v'])
+				sentiment_values = []
+
+				lines_list = tokenize.sent_tokenize(body)
+				for sentence in lines_list:
+					if phrase.upper() in sentence.upper():#(regex.search(sentence)):            
+						s = sid.polarity_scores(sentence)
+						sentiment_values.append(s['compound'])
+				
+				comment_sentiment = float(sum(sentiment_values)) / len(sentiment_values)
+				
+				sentiments = sentiments + (score * [comment_sentiment])
+
+			results[year - start_year] = [str(year), sum(sentiments) / len(sentiments)]
 
 	for i in range(year_diff):
 		t = threading.Thread(target=getSentiment, args=([i + start_year]))
@@ -312,6 +318,7 @@ def sentiment():
 	for t in threads:
 		t.join()
 
+	results = [r for r in results if r != None]
 	return json.dumps(results)
 
 

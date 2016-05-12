@@ -45,7 +45,7 @@ function word_phrase_karma_subreddit (data) {
 		var tool = $("#main_tooltip");
 		var name = $(this).attr("name");
 		tool.text(name + "\nAverage Karma: " + ($(this).attr("r")/10).toString().substring(0, 4));
-		tool.css({top:ycoord + 1 , left:xcoord + 1}).show();
+		tool.css({top:ycoord - 100 , left:xcoord - 300}).show();
 	});
 	$(".circ").mouseout(function() {
 		$("#main_tooltip").hide();

@@ -17,6 +17,7 @@ $(document).ready(function() {
 
 	$("#yaxis").change(function() {
 		$(".explanations").hide();
+		$(".inputdiv").hide();
 
 		var option = $(this).val();
 		if (option == "word_phrase_karma_subreddit" || 
@@ -25,7 +26,6 @@ $(document).ready(function() {
 			option == "word_phrase_subreddit" || 
 			option == "word_phrase_karma" ||
 			option == "sentiment") {
-			console.log("pressed this")
 			$("#phrasediv").show();
 
 			if (option == "word_phrase_karma_subreddit") {
@@ -35,7 +35,6 @@ $(document).ready(function() {
 				$("#KarmaPredictExplanation").show();
 			}
 			if (option == "word_phrase"){
-				console.log("pressed this2");
 				$("#WordVsTimeExplanation").show();
 			}
 			if (option == "word_phrase_subreddit"){
@@ -47,36 +46,27 @@ $(document).ready(function() {
 			if (option == "sentiment") {
 				$("#SentimentVsSubredditExplanation").show();
 			}
-
-		} else {
-			$("#phrasediv").hide();
-		}
+		} 
 
 		if (option == "subreddit_popularity" ||
 			option == "sentiment") {
+			console.log("show")
 			$("#subredditdiv").show();
 			if (option == "subreddit_popularity") {
 				$("#SubredditPopularityExplanation").show();
 			}
-		} else {
-			$("#subredditdiv").hide();
-		}
+		} 
 
 		if (option == "reading_level") {
 			$("#yeardiv").show();
 			$("#ReadingLevelExplanation").show();
-		} else {
-			$("#yeardiv").hide();
-		}
+		} 
 
 		if (option == "wordcount") {
 			$("#yeardiv").show();
 			$("#subredditdiv").show();
 			$("#WordcountExplanation").show();
-		} else {
-			$("#yeardiv").hide();
-			$("#subredditdiv").hide();
-		}
+		} 
 	})
 
 	$("#submitbutton").click(function() {
@@ -94,6 +84,17 @@ $(document).ready(function() {
 		clear_canvas();
 		var yaxis = $("#yaxis").val();
 		var text = $("#phrasetext").val();
+		var text2 = $("#subreddittext").val();
+		var text3 = $("#yeartext").val();
+		if (text2 != "") {
+			text += ", " + text2;
+		}
+		if (text3 != "") {
+			text += ", " + text3;
+		}
+		if (text[0] == ",") {
+			text = text.substring(1, text.length);
+		}
 		var subreddit = $("#subreddittext").val();
 		var year = $("#yeartext").val();
 		$("#viz_title").html("Query: " + text)
@@ -160,6 +161,9 @@ $(document).ready(function() {
 				wordcount(JSON.parse(data));
 			});
 		}
+		$("#phrasetext").val("");
+		$("#subreddittext").val("");
+		$("#yeartext").val("");
 	}
 
 });
