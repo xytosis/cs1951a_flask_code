@@ -10,7 +10,7 @@ function freq_to_time(data) {
 	var max_red = Math.max.apply(Math, yvalues);
 	var max_blue = Math.max.apply(Math, xvalues)
 	var big_blue = 100;
-	var big_red = $("#visualization").width() - 300;
+	var big_red = $("#visualization").width() - 600;
 	var red_scale = big_red/max_red;
 	var blue_scale = big_blue/max_blue;
 
@@ -31,7 +31,7 @@ function freq_to_time(data) {
 			return d[1] * red_scale + 2;
 		})
 		.attr("height", 15)
-		.attr("fill", "rgba(150, 13, 13, 1)");
+		.attr("fill", "#ff8b60");
 
 	svg.selectAll("rect2")
 		.data(data)
@@ -47,7 +47,7 @@ function freq_to_time(data) {
 			return d[1] * blue_scale /d[2] + 2;
 		})
 		.attr("height", 15)
-		.attr("fill", "blue");
+		.attr("fill", "#9494ff");
 
 
 	svg.selectAll("text")
