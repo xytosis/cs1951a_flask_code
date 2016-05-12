@@ -120,7 +120,6 @@ body {
 	margin: 0px;
     font: 10px sans-serif;
   background-color: #eff7ff;
-  background-image: url("static/images/background.jpg");
 }
 
 html {
@@ -130,7 +129,9 @@ html {
 }
 
 #viz_title {
+    font-family: "Segoe UI";
     float: left;
+    font-weight: normal;
 }
 
 #viz-cell {
