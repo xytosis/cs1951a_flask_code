@@ -43,6 +43,17 @@ $(document).ready(function() {
 	})
 
 	$("#submitbutton").click(function() {
+		submitFunction();
+	});
+
+	$(".textbox").keypress(function (e) {
+	  if (e.which == 13) {
+	    submitFunction();
+	    return false;
+	  }
+	});
+
+	function submitFunction() {
 		clear_canvas();
 		var yaxis = $("#yaxis").val();
 		var text = $("#phrasetext").val();
@@ -104,6 +115,6 @@ $(document).ready(function() {
 				reading_level(JSON.parse(data));
 			});
 		}
-	})
+	}
 
 });
