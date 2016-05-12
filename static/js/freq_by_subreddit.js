@@ -6,6 +6,9 @@ function freq_by_subreddit(data) {
       width = $("#visualization").width() - margin.left - margin.right - 50,
       height = 1000 - margin.top - margin.bottom
 
+	var div = d3.select("body").append("div")	
+	  .attr("class", "tooltip")				
+	  .style("opacity", 0);
 
 	function get_value(single_json) {
 		return single_json[Object.keys(single_json)[0]];
@@ -72,7 +75,18 @@ function freq_by_subreddit(data) {
 	        .attr("percent", function(d) {
 	        	return d["size"]/10000;
 	        })
-	        .attr("class", "circ");
+	        .attr("class", "circ")
+	        .on("mousemove", function(d) {
+				div.transition()
+					.style("opacity", .8);
+				div.html(d["name"] + "<br/>" +  "percent of reddit: " + (d["size"]/10000).toString().substring(0, 6))
+					.style("left", (d3.event.pageX) + "px")
+					.style("top", (d3.event.pageY - 35) + "px");
+				})
+			.on("mouseout", function(d) {
+				div.transition()
+					.style("opacity", 0);
+				});
 	}
 
 
