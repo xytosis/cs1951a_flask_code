@@ -25,7 +25,6 @@ $(document).ready(function() {
 			option == "word_phrase_subreddit" || 
 			option == "word_phrase_karma" ||
 			option == "sentiment") {
-			console.log("pressed this")
 			$("#phrasediv").show();
 
 			if (option == "word_phrase_karma_subreddit") {
@@ -35,7 +34,6 @@ $(document).ready(function() {
 				$("#KarmaPredictExplanation").show();
 			}
 			if (option == "word_phrase"){
-				console.log("pressed this2");
 				$("#WordVsTimeExplanation").show();
 			}
 			if (option == "word_phrase_subreddit"){
@@ -53,18 +51,25 @@ $(document).ready(function() {
 		}
 
 		if (option == "subreddit_popularity" ||
-			option == "sentiment") {
+			option == "sentiment" || 
+			option == "topic_modeling") {
 			$("#subredditdiv").show();
 			if (option == "subreddit_popularity") {
 				$("#SubredditPopularityExplanation").show();
+			}
+			if (option == "topic_modeling") {
+				$("#TopicModelingExplanation").show();
 			}
 		} else {
 			$("#subredditdiv").hide();
 		}
 
-		if (option == "reading_level") {
+		if (option == "reading_level" ||
+			option == "topic_modeling") {
 			$("#yeardiv").show();
-			$("#ReadingLevelExplanation").show();
+			if (option == "reading_level") {
+				$("#ReadingLevelExplanation").show();
+			}
 		} else {
 			$("#yeardiv").hide();
 		}
@@ -141,6 +146,13 @@ $(document).ready(function() {
 			$.post("/reading_level", {"year":year}, function(data) {
 				$("#loading").hide()
 				reading_level(JSON.parse(data));
+			});
+		}
+
+		if (yaxis == "topic_modeling"){
+			$.post("/topic_modeling", {"subreddit": subreddit, "year":year}, function(data) {
+				$("#loading").hide()
+				topic_modeling(JSON.parse(data));
 			});
 		}
 	}

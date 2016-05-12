@@ -18,6 +18,11 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk import tokenize
 import re
 from textstat.textstat import textstat
+from nltk.tokenize import RegexpTokenizer
+from stop_words import get_stop_words
+from nltk.stem.porter import PorterStemmer
+from gensim import corpora, models
+import gensim
 
 application = Flask(__name__)
 SOLR_IP = "54.173.242.173:8983"
@@ -410,6 +415,94 @@ def reading_level():
 
 	return json.dumps(results)
 
+
+@application.route("/topic_modeling", methods=["POST"])
+def topic_modeling():
+	subreddit = urllib.quote(request.form["subreddit"])
+	subreddit = subreddit_map[subreddit.lower()]
+	year = urllib.quote(request.form["year"])
+	if int(year) > 2014:
+		year += "_01"
+
+	tokenizer = RegexpTokenizer(r'(?=\S[a-zA-Z\'-]+)([a-zA-Z\'-]+)')
+
+	# create English stop words list
+	en_stop = get_stop_words('en')
+
+	# Create p_stemmer of class PorterStemmer
+	p_stemmer = PorterStemmer()
+
+	topic_num = 5
+	# list for tokenized documents in loop
+	texts = []
+
+	query = '''SELECT body FROM 
+		(SELECT body, RAND() AS r1
+		FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
+		WHERE subreddit == "''' + subreddit + '''"  
+		AND body != "[deleted]"
+		AND body != "[removed]"
+		AND score > 1
+		ORDER BY r1
+		LIMIT 1000)
+		'''
+
+	bigquery_service = build('bigquery', 'v2', credentials=credentials)
+	try:
+		query_request = bigquery_service.jobs()
+		query_data = {
+			'query': query,
+			'timeoutMs': 20000
+		}
+
+		query_response = query_request.query(
+			projectId=bigquery_pid,
+			body=query_data).execute()
+
+	except HttpError as err:
+		print('Error: {}'.format(err.content))
+		raise err
+
+	topics = []
+	
+	if 'rows' in query_response:
+		rows = query_response['rows']
+		for r in rows:   
+		    # clean and tokenize document string
+		    i = r['f'][0]['v']
+		    raw = i.lower()
+		    raw = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', raw)
+		    raw = re.sub("^\d+\s|\s\d+\s|\s\d+$", " ", raw)
+		    raw = re.sub("&nbsp;|&lt;|&gt;|&amp;|&cent;|&pound;|&yen;|&euro;|&copy;|&reg;", " ", raw)
+		    tokens = tokenizer.tokenize(raw)
+
+		    # remove stop words from tokens
+		    stopped_tokens = [i for i in tokens if not i in en_stop]
+		    
+		    # stem tokens
+		    # stemmed_tokens = [p_stemmer.stem(i) for i in stopped_tokens]
+		    
+		    # add tokens to list
+		    texts.append(stopped_tokens)
+
+			# turn our tokenized documents into a id <-> term dictionary
+		dictionary = corpora.Dictionary(texts)
+		    
+		# convert tokenized documents into a document-term matrix
+		corpus = [dictionary.doc2bow(text) for text in texts]
+
+		# generate LDA model
+		ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=topic_num, id2word = dictionary, passes=1)
+		# print(ldamodel[0])
+		for topic in ldamodel.show_topics(num_topics=5, num_words=5):
+		    line = topic[1].decode('utf-8')
+		    splitted = line.split(' + ')
+		    topic = []
+		    for s in splitted:
+		        topic.append(s.split('*')[1])
+		    topics.append(topic)
+
+	return json.dumps(topics)
 
 if __name__ == "__main__":
 	application.debug = True
