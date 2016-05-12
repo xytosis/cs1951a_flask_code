@@ -25,6 +25,38 @@ credentials = GoogleCredentials.get_application_default()
 bigquery_pid = "project1-1258"
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))   # refers to application_top
 APP_STATIC = os.path.join(APP_ROOT, 'static')
+global subreddit_map
+subreddit_map = {}
+
+def init_subreddit_map():
+	bigquery_service = build('bigquery', 'v2', credentials=credentials)
+
+	query = '''
+	SELECT subreddit FROM (SELECT subreddit, count(*) AS c1 
+	    FROM [fh-bigquery:reddit_comments.2016_01]
+	    GROUP BY subreddit 
+	    ORDER BY c1 DESC LIMIT 10)
+	'''
+	try:
+	    query_request = bigquery_service.jobs()
+	    query_data = {
+	        'query': (query)
+	    }
+
+	    query_response = query_request.query(
+	        projectId="project1-1258",
+	        body=query_data).execute()
+
+	    for row in query_response['rows']:
+	        subreddit = row['f'][0]['v']
+	        subreddit_map[subreddit.lower()] = subreddit
+
+	except HttpError as err:
+	    print('Error: {}'.format(err.content))
+	    raise err
+
+init_subreddit_map()
+
 
 def get_url(q, req, start):
     response = json.loads(urllib2.urlopen(req).read())
@@ -168,6 +200,7 @@ def word_phrase_karma_subreddit():
 @application.route("/subreddit_popularity", methods=["POST"])
 def subreddit_time_by_count_linechart():
 	subreddit = urllib.quote(request.form["subreddit"])
+	subreddit = subreddit_map[subreddit.lower()]
 	ranges = []
 	cur_date = datetime.strptime("2007-10-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
 	end_date = datetime.strptime("2015-01-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
@@ -262,6 +295,7 @@ def getSentiment(year):
 def sentiment():
 	phrase = urllib.quote(request.form["text"])
 	subreddit = urllib.quote(request.form["subreddit"])
+	subreddit = subreddit_map[subreddit.lower()]
 
 	sid = SentimentIntensityAnalyzer()
 	start_year = 2008
