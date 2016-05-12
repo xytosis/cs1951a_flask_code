@@ -2,7 +2,7 @@
 function freq_by_subreddit(data) {
 
 
-	var margin = { top: 50, right: 0, bottom: 100, left: 30 },
+	var margin = { top: 50, right: 0, bottom: 100, left: -1000 },
       width = $("#visualization").width() - margin.left - margin.right - 50,
       height = 1000 - margin.top - margin.bottom
 
