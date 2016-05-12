@@ -385,8 +385,12 @@ def sentiment_by_subreddit():
 	return json.dumps(result)
 
 def getWordcount(year, subreddit):
+	year_str = str(year)
+	if int(year) > 2014:
+		year_str += "_01"
+
 	query = '''SELECT body, RAND() AS r1
-	FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
+	FROM [fh-bigquery:reddit_comments.''' + year_str + ''']
 	WHERE subreddit == \"''' + subreddit + '''\"
 	AND body != "[deleted]"
 	AND body != "[removed]"
