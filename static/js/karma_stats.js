@@ -1,4 +1,5 @@
 function karma_stats (data) {
+	console.log(data);
 
 	var hist = data["hist"];
 	var scale = ($("#visualization").width()-50)/(data["max"] - data["min"]);

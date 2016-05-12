@@ -170,8 +170,7 @@ def karma_stats():
 	stats["c"] = stuff[3 * len(stuff)/4]
 	stats["d"] = stuff[len(stuff)/3]
 	stats["max_height"] = max(hist.values())
-	return json.dumps(stats)
-
+	return json.dumps(sorted(stats["hist"], key = lambda tup: tup[0]))
 
 @application.route("/karma_predict", methods=["POST"])
 def karma_predict():
@@ -494,7 +493,7 @@ def topic_modeling():
 		AND body != "[removed]"
 		AND score > 1
 		ORDER BY r1
-		LIMIT 1000)
+		LIMIT 500)
 		'''
 
 	bigquery_service = build('bigquery', 'v2', credentials=credentials)
@@ -542,7 +541,7 @@ def topic_modeling():
 		corpus = [dictionary.doc2bow(text) for text in texts]
 
 		# generate LDA model
-		ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=topic_num, id2word = dictionary, passes=1)
+		ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=topic_num, id2word = dictionary, passes=10)
 		# print(ldamodel[0])
 		for topic in ldamodel.show_topics(num_topics=5, num_words=5):
 		    line = topic[1].decode('utf-8')

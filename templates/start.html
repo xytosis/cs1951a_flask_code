@@ -14,66 +14,70 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script> <!-- JQUERY -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js"></script> <!-- D3.js -->
   <script src="https://rawgit.com/gka/d3-jetpack/master/d3-jetpack.js"></script>
-  <script src="static/js/word_phrase_karma_subreddit.js"></script>
+  <script src="static/js/barchart.js"></script>
   <script src="static/js/karma_predict.js"></script>
   <script src="static/js/karma_stats.js"></script>
   <script src="static/js/freq_to_time.js"></script>
   <script src="static/js/freq_by_subreddit.js"></script>
-  <script src="static/js/subreddit_popularity.js"></script>
+  <script src="static/js/linechart.js"></script>
   <script src="static/js/sentiment.js"></script>
-  <script src="static/js/reading_level.js"></script>
   <script src="static/js/topic_modeling.js"></script>
   <script src="static/js/wordcount.js"></script>
   <script src="static/js/script.js"></script>
   <script src="static/js/viz.js"></script>
   <script src="static/js/d3.layout.cloud.js"></script>
+
+  <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js" integrity="sha256-DI6NdAhhFRnO2k51mumYeDShet3I8AKCQf/tf7ARNhI=" crossorigin="anonymous"></script>
 </head>
 
 <div id="display-container"></div>
 <div id="background"></div>
-<div id="banner"><img id="banner-image" src="static/images/redditguy.png"/>reddata</div>
+<div id="banner">
+  <img id="banner-image" src="static/images/redditguy.png"/>
+  <div id="banner-text">reddata</div>
+</div>
 <div id="side-menu">
-  <h3>
-  This is some Reddit Analysis application. Pick the interactive option and enter your input.
-  </h3>
+  <div id="intro-text">This is some Reddit Analysis application. Pick the interactive option and enter your input.</div>
   <br>
-  <select class="selectform" id="yaxis">
-    <option disabled selected value> -- select an option -- </option>
-    <option value="word_phrase">Word vs. Time</option>
-    <option value="word_phrase_subreddit">Word vs. Subreddit</option>
-    <option value="word_phrase_karma">Word vs. Karma</option>
+  <div id="query-area">
+    <select class="selectform" id="yaxis">
+      <option disabled selected value> -- select an option -- </option>
+      <option value="word_phrase">Word vs. Time</option>
+      <option value="word_phrase_subreddit">Word vs. Subreddit</option>
+      <option value="word_phrase_karma">Word vs. Karma</option>
 
-    <option value="sentiment">Sentiment vs. Time</option>
-    <option value="word_phrase_karma_subreddit">Karma vs. Subreddit</option>
-    
-    <option value="subreddit_popularity">Subreddit Popularity vs. Time</option>
-    <option value="reading_level">Reading Level vs. Subreddit</option>
-    <option value="topic_modeling">Topic Modeling</option>
+      <option value="sentiment">Sentiment vs. Time</option>
+      <option value="word_phrase_karma_subreddit">Karma vs. Subreddit</option>
+      
+      <option value="subreddit_popularity">Subreddit Popularity vs. Time</option>
+      <option value="reading_level">Reading Level vs. Subreddit</option>
+      <option value="topic_modeling">Topic Modeling</option>
 
-    <option value="karma_predict">Predict karma of comment</option>
-    <option value="wordcount">Wordcount</option>
-    
-  </select>
-  <br>
-  <br>
-  <div id="phrasediv" class="inputdiv">Type a word or phrase:<br><br><input type="text" id="phrasetext" class="textbox"></input></div><br>
-  <div id="subredditdiv" class="inputdiv">Type a subreddit:<br><br><input type="text" id="subreddittext"class="textbox"></input></div><br>
-  <div id="yeardiv" class="inputdiv">Type a year (2007-2016):<br><br><input type = "text" id="yeartext"class="textbox"></input></div><br>
-  <br>
-  <div id = "explanations">
-    <div class = "explanations" id = "WordVsTimeExplanation">This shows the frequency of specific words over time, broken up by percentage of comments containing this word on the left, and number of total comments containing this word on the right.</div>
-    <div class = "explanations" id = "WordVsSubredditExplanation">This shows the percentage of comments containing this word in order of the subreddits with the highest percentage of comments containing this word.</div>
-    <div class = "explanations" id = "WordVsKarmaExplanation">This gives a breakdown of karma given to comments containing this word.</div>
-    <div class = "explanations" id = "SentimentVsSubredditExplanation">This performs sentiment analysis on a particular word/phrase over time.</div>
-    <div class = "explanations" id = "KarmaVsSubredditExplanation">This gives average karma given per subreddit in order of highest average karma.</div>
-    <div class = "explanations" id = "KarmaPredictExplanation">This uses ridge regression to predict the karma of a given comment.</div>
-    <div class = "explanations" id = "SubredditPopularityExplanation">This gives the popularity of a given subreddit over time, by the percentage of comments in this subreddit of all total comments.</div>
-    <div class = "explanations" id = "ReadingLevelExplanation">This gives the average reading level of a few different subreddits for a given year.</div>
-    <div class = "explanations" id = "TopicModelingExplanation">This determines topics of a subreddit for a particular year by word clustering.</div>
+      <option value="karma_predict">Predict karma of comment</option>
+      <option value="wordcount">Wordcount</option>
+    </select>
+
+    <div id="query-fields">
+      <div id = "explanations">
+        <div class = "explanations" id = "WordVsTimeExplanation">This shows the frequency of specific words over time, broken up by percentage of comments containing this word on the left, and number of total comments containing this word on the right.</div>
+        <div class = "explanations" id = "WordVsSubredditExplanation">This shows the percentage of comments containing this word in order of the subreddits with the highest percentage of comments containing this word.</div>
+        <div class = "explanations" id = "WordVsKarmaExplanation">This gives a breakdown of karma given to comments containing this word.</div>
+        <div class = "explanations" id = "SentimentVsSubredditExplanation">This performs sentiment analysis on a particular word/phrase over time.</div>
+        <div class = "explanations" id = "KarmaVsSubredditExplanation">This gives average karma given per subreddit in order of highest average karma.</div>
+        <div class = "explanations" id = "KarmaPredictExplanation">This uses ridge regression to predict the karma of a given comment.</div>
+        <div class = "explanations" id = "SubredditPopularityExplanation">This gives the popularity of a given subreddit over time, by the percentage of comments in this subreddit of all total comments.</div>
+        <div class = "explanations" id = "ReadingLevelExplanation">This gives the average reading level of a few different subreddits for a given year.</div>
+        <div class = "explanations" id = "TopicModelingExplanation">This determines topics of a subreddit for a particular year by word clustering.</div>
+      </div>
+
+      <br>
+      <div id="phrasediv" class="inputdiv">Type a word or phrase:<br><br><input type="text" id="phrasetext" class="textbox"></input><br><br></div>
+      <div id="subredditdiv" class="inputdiv">Type a subreddit:<br><br><input type="text" id="subreddittext"class="textbox"></input><br><br></div>
+      <div id="yeardiv" class="inputdiv">Type a year (2007-2016):<br><br><input type = "text" id="yeartext"class="textbox"></input><br><br></div>
+      <button id="submitbutton">Submit</button>
+      <div></div>
+    </div>
   </div>
-  <br>
-
-  <button id="submitbutton">Submit</button>
 </div> <!-- side menu -->
 <div id="displayed-content">
   <div id="visualization">

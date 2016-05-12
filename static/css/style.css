@@ -1,3 +1,8 @@
+@font-face {
+    font-family: "rocko";
+    src: url("../fonts/RockoFLF.ttf");
+}
+
 #display-container {
     position: fixed;
     top: 0;
@@ -8,8 +13,8 @@
 
 #banner {
     background-color: #d3f3fe;
-    border-bottom: 1px solid #336699;
-    text-align: center;
+    border-bottom: 1px solid #5f99cf;
+    box-shadow: 0 0 25px #5f99cf;
     position: fixed;
     top: 0;
     height: 100px;
@@ -18,11 +23,22 @@
 }
 
 #banner-image {
-    height: 100px;
+    margin-left: 10px;
+    margin-top: 12px;
+    height: 80px;
+}
+
+#banner-text {
+    display: inline;
+    font-family: "rocko";
+    font-size: 50px;
+    padding-left: 10px;
+    position: relative;
+    bottom: 2px;
 }
 
 .textbox {
-    border: none;
+    border: 1px solid #888;
     border-radius: 10px;
     padding: 10px;
     width: 100%;
@@ -32,6 +48,7 @@
 select{
     border: none;
     border-radius: 10px;
+    font-size: 16px;
     padding: 10px;
     width: 100%;
     box-sizing: border-box;
@@ -42,6 +59,7 @@ button {
     border: none;
     color: white;
     border-radius: 10px;
+    float: right;
     padding: 10px 15px;
     text-align: center;
     text-decoration: none;
@@ -52,12 +70,28 @@ button {
 #side-menu {
     background-color: #cee3f8;
     font-size: 150%;
-    padding: 10px;
+    padding: 20px 10px;
     position: fixed;
     top: 100px;
     height: calc(100% - 120px);
     width: 20%;
     z-index: 98;
+}
+
+#intro-text {
+    font-size: 18px;
+}
+
+#query-area{
+    background-color: #fff;
+    border: 1px solid #888;
+    border-radius: 10px;
+}
+
+#query-fields {
+    border-top: 1px solid #888;
+    display: none;
+    padding: 10px;
 }
 
 #displayed-content {
@@ -276,14 +310,14 @@ input.radio:checked ~ label {
 }
 
 .bar:hover {
-  fill: lightblue;
+  fill: #ff8b60;
 }
 
 div.tooltip { 
     position: absolute;
     padding: 2px;
     font: 12px sans-serif;
-    background: lightsteelblue;
+    background: #eff7ff;
     border: 0px;
     border-radius: 8px;
     pointer-events: none;

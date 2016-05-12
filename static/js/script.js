@@ -18,6 +18,8 @@ $(document).ready(function() {
 	$("#yaxis").change(function() {
 		$(".explanations").hide();
 		$(".inputdiv").hide();
+		$("#query-fields").show();
+		$("#yaxis").css('font-weight', 'bold');
 
 		var option = $(this).val();
 		if (option == "word_phrase_karma_subreddit" || 
@@ -72,7 +74,7 @@ $(document).ready(function() {
 			$("#yeardiv").show();
 			$("#subredditdiv").show();
 			$("#WordcountExplanation").show();
-		} 
+		}
 	})
 
 	$("#submitbutton").click(function() {
@@ -123,7 +125,7 @@ $(document).ready(function() {
 		if (yaxis == "word_phrase_karma") {
 			$.post("/karma_stats", {"text":text}, function(data) {
 				$("#loading").hide()
-				karma_stats(JSON.parse(data));
+				linechart(JSON.parse(data), false, false, "karma", "number of comments");
 			});
 		}
 
@@ -137,27 +139,27 @@ $(document).ready(function() {
 		if (yaxis == "word_phrase_karma_subreddit") {
 			$.post("/word_phrase_karma_subreddit", {"text":text}, function(data) {
 				$("#loading").hide()
-				word_phrase_karma_subreddit(JSON.parse(data));
+				barchart(JSON.parse(data), "subreddit", "average karma", true);
 			});
 		}
 		if (yaxis == "subreddit_popularity"){
 			$.post("/subreddit_popularity", {"subreddit":subreddit}, function(data) {
 				$("#loading").hide()
-				subreddit_popularity(JSON.parse(data));
+				linechart(JSON.parse(data), true, false, "time", "percentage of comments");
 			});
 		}
 
 		if (yaxis == "sentiment"){
 			$.post("/sentiment", {"text":text,"subreddit":subreddit}, function(data) {
 				$("#loading").hide()
-				sentiment(JSON.parse(data));
+				linechart(JSON.parse(data), false, true, "time", "sentiment");
 			});
 		}
 
 		if (yaxis == "reading_level"){
 			$.post("/reading_level", {"year":year}, function(data) {
 				$("#loading").hide()
-				reading_level(JSON.parse(data));
+				barchart(JSON.parse(data), "subreddit", "reading level", true);
 			});
 		}
 

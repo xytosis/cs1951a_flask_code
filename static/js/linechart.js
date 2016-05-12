@@ -1,15 +1,30 @@
-function subreddit_popularity(data){
-
-for (var i = 0, len = data.length; i < len; i++) {
-  data[i][0] = d3.time.format("%Y-%m-%d").parse(data[i][0]);
+function linechart(data, time_month, time_year, xaxis, yaxis){
+if (time_month){
+  for (var i = 0, len = data.length; i < len; i++) {
+    data[i][0] = d3.time.format("%Y-%m-%d").parse(data[i][0]);
+  }  
+}
+if (time_year){
+  for (var i = 0, len = data.length; i < len; i++) {
+    data[i][0] = d3.time.format("%Y").parse(data[i][0]);
+  }
 }
 
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
-var x = d3.time.scale()
+var x 
+
+if (time_month || time_year) {
+  x = d3.time.scale()
     .range([0, width]);
+}
+
+else {
+  x = d3.scale.linear()
+  .range([0, width]);
+}
 
 var y = d3.scale.linear()
     .range([height, 0]);
@@ -24,7 +39,8 @@ var yAxis = d3.svg.axis()
 
 var line = d3.svg.line()
     .x(function(d) { return x(d[0]); })
-    .y(function(d) { return y(d[1]); });
+    .y(function(d) { return y(d[1]); })
+    .interpolate("basis");
 
 var svg = d3.select("#main_viz").append("svg:svg")
     .attr("width", width + margin.left + margin.right)
@@ -39,7 +55,11 @@ y.domain(d3.extent(data, function(d) { return d[1]; }));
 svg.append("g")
   .attr("class", "x axis")
   .attr("transform", "translate(0," + height + ")")
-  .call(xAxis);
+  .call(xAxis)
+  .append("text")
+    .attr("x", width / 2)
+    .attr("y",  100)
+  .text(xaxis);
 
 svg.append("g")
   .attr("class", "y axis")
@@ -49,7 +69,7 @@ svg.append("g")
   .attr("y", 6)
   .attr("dy", ".71em")
   .style("text-anchor", "end")
-  .text("Percent");
+  .text(yaxis);
 
 svg.append("path")
   .datum(data)
