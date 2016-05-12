@@ -85,6 +85,17 @@ $(document).ready(function() {
 		clear_canvas();
 		var yaxis = $("#yaxis").val();
 		var text = $("#phrasetext").val();
+		var text2 = $("#subreddittext").val();
+		var text3 = $("#yeartext").val();
+		if (text2 != "") {
+			text += ", " + text2;
+		}
+		if (text3 != "") {
+			text += ", " + text3;
+		}
+		if (text[0] == ",") {
+			text = text.substring(1, text.length);
+		}
 		var subreddit = $("#subreddittext").val();
 		var year = $("#yeartext").val();
 		$("#viz_title").html("Query: " + text)
@@ -143,6 +154,9 @@ $(document).ready(function() {
 				reading_level(JSON.parse(data));
 			});
 		}
+		$("#phrasetext").val("");
+		$("#subreddittext").val("");
+		$("#yeartext").val("");
 	}
 
 });
