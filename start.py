@@ -209,6 +209,55 @@ def subreddit_time_by_count_linechart():
 	return json.dumps(sorted(final_array, key = lambda i : i[0]))
 
 
+
+def getSentiment(year):
+    query = '''SELECT body, score 
+    FROM 
+    (SELECT subreddit, body, score, RAND() AS r1
+    FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
+    WHERE subreddit == \"''' + subreddit + '''\"
+    AND body != "[deleted]"
+    AND body != "[removed]"
+    AND REGEXP_MATCH(body, r'(?i:''' + phrase + ''')')
+    AND score > 1
+    ORDER BY r1
+    LIMIT 2000)'''
+
+    bigquery_service = build('bigquery', 'v2', credentials=credentials)
+    try:
+        query_request = bigquery_service.jobs()
+        query_data = {
+            'query': query,
+            'timeoutMs': 30000
+        }
+
+        query_response = query_request.query(
+            projectId=bigquery_pid,
+            body=query_data).execute()
+
+    except HttpError as err:
+        print('Error: {}'.format(err.content))
+        raise err
+
+    rows = query_response['rows']
+    sentiments = []
+    for row in rows:
+        body = row['f'][0]['v']
+        score = int(row['f'][1]['v'])
+        sentiment_values = []
+
+        lines_list = tokenize.sent_tokenize(body)
+        for sentence in lines_list:
+            if phrase.upper() in sentence.upper():#(regex.search(sentence)):            
+                s = sid.polarity_scores(sentence)
+                sentiment_values.append(s['compound'])
+        
+        comment_sentiment = float(sum(sentiment_values)) / len(sentiment_values)
+        
+        sentiments = sentiments + (score * [comment_sentiment])
+
+    results[year - start_year] = [str(year), sum(sentiments) / len(sentiments)]
+
 @application.route("/sentiment", methods=["POST"])
 def sentiment():
 	phrase = urllib.quote(request.form["text"])
@@ -220,55 +269,6 @@ def sentiment():
 	year_diff = end_year - start_year
 	results = [None] * year_diff
 	threads = [None] * year_diff
-
-
-	def getSentiment(year):
-		query = '''SELECT body, score 
-		FROM 
-		(SELECT subreddit, body, score, RAND() AS r1
-		FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
-		WHERE subreddit == \"''' + subreddit + '''\"
-		AND body != "[deleted]"
-		AND body != "[removed]"
-		AND REGEXP_MATCH(body, r'(?i:''' + phrase + ''')')
-		AND score > 1
-		ORDER BY r1
-		LIMIT 2000)'''
-
-		bigquery_service = build('bigquery', 'v2', credentials=credentials)
-		try:
-			query_request = bigquery_service.jobs()
-			query_data = {
-				'query': query,
-				'timeoutMs': 30000
-			}
-
-			query_response = query_request.query(
-				projectId=bigquery_pid,
-				body=query_data).execute()
-
-		except HttpError as err:
-			print('Error: {}'.format(err.content))
-			raise err
-
-		rows = query_response['rows']
-		sentiments = []
-		for row in rows:
-			body = row['f'][0]['v']
-			score = int(row['f'][1]['v'])
-			sentiment_values = []
-
-			lines_list = tokenize.sent_tokenize(body)
-			for sentence in lines_list:
-				if phrase.upper() in sentence.upper():#(regex.search(sentence)):			
-					s = sid.polarity_scores(sentence)
-					sentiment_values.append(s['compound'])
-			
-			comment_sentiment = float(sum(sentiment_values)) / len(sentiment_values)
-			
-			sentiments = sentiments + (score * [comment_sentiment])
-
-		results[year - start_year] = [str(year), sum(sentiments) / len(sentiments)]
 
 	for i in range(year_diff):
 		t = threading.Thread(target=getSentiment, args=([i + start_year]))
