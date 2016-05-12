@@ -35,7 +35,7 @@ def init_subreddit_map():
 	SELECT subreddit FROM (SELECT subreddit, count(*) AS c1 
 	    FROM [fh-bigquery:reddit_comments.2016_01]
 	    GROUP BY subreddit 
-	    ORDER BY c1 DESC LIMIT 10)
+	    ORDER BY c1 DESC LIMIT 10000)
 	'''
 	try:
 	    query_request = bigquery_service.jobs()
