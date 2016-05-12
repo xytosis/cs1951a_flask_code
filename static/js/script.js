@@ -17,6 +17,7 @@ $(document).ready(function() {
 
 	$("#yaxis").change(function() {
 		$(".explanations").hide();
+		$(".inputdiv").hide();
 
 		var option = $(this).val();
 		if (option == "word_phrase_karma_subreddit" || 
@@ -45,13 +46,10 @@ $(document).ready(function() {
 			if (option == "sentiment") {
 				$("#SentimentVsSubredditExplanation").show();
 			}
-
-		} else {
-			$("#phrasediv").hide();
-		}
+		} 
 
 		if (option == "subreddit_popularity" ||
-			option == "sentiment" || 
+			option == "sentiment" ||
 			option == "topic_modeling") {
 			$("#subredditdiv").show();
 			if (option == "subreddit_popularity") {
@@ -60,19 +58,21 @@ $(document).ready(function() {
 			if (option == "topic_modeling") {
 				$("#TopicModelingExplanation").show();
 			}
-		} else {
-			$("#subredditdiv").hide();
-		}
+		} 
 
-		if (option == "reading_level" ||
-			option == "topic_modeling") {
+		if (option == "reading_level") {
 			$("#yeardiv").show();
-			if (option == "reading_level") {
-				$("#ReadingLevelExplanation").show();
-			}
-		} else {
-			$("#yeardiv").hide();
-		}
+			$("#ReadingLevelExplanation").show();
+		} 
+		if (option == "topic_modeling") {
+			$("#yeardiv").show();
+		} 
+
+		if (option == "wordcount") {
+			$("#yeardiv").show();
+			$("#subredditdiv").show();
+			$("#WordcountExplanation").show();
+		} 
 	})
 
 	$("#submitbutton").click(function() {
@@ -89,10 +89,22 @@ $(document).ready(function() {
 	function submitFunction() {
 		clear_canvas();
 		var yaxis = $("#yaxis").val();
+		var text1 = $("#phrasetext").val();
+		var text2 = $("#subreddittext").val();
+		var text3 = $("#yeartext").val();
+		if (text2 != "") {
+			text1 += ", " + text2;
+		}
+		if (text3 != "") {
+			text1 += ", " + text3;
+		}
+		if (text1[0] == ",") {
+			text1 = text1.substring(1, text1.length);
+		}
 		var text = $("#phrasetext").val();
 		var subreddit = $("#subreddittext").val();
 		var year = $("#yeartext").val();
-		$("#viz_title").html("Query: " + text)
+		$("#viz_title").html("Query: " + text1)
 		$("#loading").show()
 		if (yaxis == "word_phrase") {
 			$.post("/freq_by_time", {"text": text}, function(data) {
@@ -155,6 +167,17 @@ $(document).ready(function() {
 				topic_modeling(JSON.parse(data));
 			});
 		}
+
+		if (yaxis == "wordcount"){
+			$.post("/wordcount", {"year":year, "subreddit":subreddit}, function(data) {
+				$("#loading").hide()
+				console.log("EREHRERJELRKERH")
+				wordcount(JSON.parse(data));
+			});
+		}
+		$("#phrasetext").val("");
+		$("#subreddittext").val("");
+		$("#yeartext").val("");
 	}
 
 });

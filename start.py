@@ -23,6 +23,8 @@ from stop_words import get_stop_words
 from nltk.stem.porter import PorterStemmer
 from gensim import corpora, models
 import gensim
+from collections import Counter
+from nltk.corpus import stopwords
 
 application = Flask(__name__)
 SOLR_IP = "54.173.242.173:8983"
@@ -201,7 +203,6 @@ def word_phrase_karma_subreddit():
 		top_subreddits_avg.append((sb[0], subreddit_sentiment[sb[0]]/float(sb[1])))
 	return json.dumps(sorted(top_subreddits_avg, key=lambda x: x[1], reverse=True))
 
-
 @application.route("/subreddit_popularity", methods=["POST"])
 def subreddit_time_by_count_linechart():
 	subreddit = urllib.quote(request.form["subreddit"])
@@ -246,14 +247,11 @@ def subreddit_time_by_count_linechart():
 
 	return json.dumps(sorted(final_array, key = lambda i : i[0]))
 
-
-
 @application.route("/sentiment", methods=["POST"])
 def sentiment():
 	phrase = urllib.quote(request.form["text"])
 	subreddit = urllib.quote(request.form["subreddit"])
-	subreddit = subreddit_map[subreddit.lower()]
-
+	subreddit = subreddit_map[subreddit.lower()]	
 	sid = SentimentIntensityAnalyzer()
 	start_year = 2008
 	end_year = 2017
@@ -326,6 +324,58 @@ def sentiment():
 	results = [r for r in results if r != None]
 	return json.dumps(results)
 
+
+def getWordcount(year, subreddit):
+	query = '''SELECT body, RAND() AS r1
+	FROM [fh-bigquery:reddit_comments.''' + str(year) + ''']
+	WHERE subreddit == \"''' + subreddit + '''\"
+	AND body != "[deleted]"
+	AND body != "[removed]"
+	AND score > 1
+	ORDER BY r1
+	LIMIT 1000'''
+
+	bigquery_service = build('bigquery', 'v2', credentials=credentials)
+	try:
+		query_request = bigquery_service.jobs()
+		query_data = {
+		'query': query,
+		'timeoutMs': 30000
+		}
+
+		query_response = query_request.query(
+			projectId=bigquery_pid,
+			body=query_data).execute()
+
+	except HttpError as err:
+		print('Error: {}'.format(err.content))
+		raise err
+
+	rows = query_response['rows']
+	count = Counter()
+
+	for row in rows:
+		body = row['f'][0]['v']
+		content = re.sub('\s+', ' ', body)  # condense all whitespace
+		content = re.sub('[^A-Za-z ]+', '', content)  # remove non-alpha chars
+		words = content.lower().split()
+		stops = set(get_stop_words('en'))
+		stops.update(stopwords.words('english'))
+
+		words = [word for word in words if word not in stopwords.words('english')]
+		count.update(words)
+
+	return count.most_common(50)
+
+@application.route("/wordcount", methods=["POST"])
+def wordcount():
+	year = urllib.quote(request.form["year"])
+	subreddit = urllib.quote(request.form["subreddit"])
+
+	subreddit = subreddit_map[subreddit.lower()]
+	stuff = getWordcount(year, subreddit)
+	stuff = [{"text" : el[0], "size": el[1]} for el in stuff]
+	return json.dumps(stuff)
 
 @application.route("/reading_level", methods=["POST"])
 def reading_level():
