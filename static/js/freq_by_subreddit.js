@@ -2,7 +2,7 @@
 function freq_by_subreddit(data) {
 
 
-	var margin = { top: 50, right: 0, bottom: 100, left: -1000 },
+	var margin = { top: 50, right: 0, bottom: 100, left: 500 },
       width = $("#visualization").width() - margin.left - margin.right - 50,
       height = 1000 - margin.top - margin.bottom
 
@@ -85,7 +85,7 @@ function freq_by_subreddit(data) {
 			var color = $(this).attr("fill");
 			var percent = (+$(this).attr("percent") * 100) + "%";
 			tool.text(name + "\npercent of word/phrase:" + percent.substring(0, 4));
-			tool.css({top:ycoord - 100 , left:xcoord - 440}).show();
+			tool.css({top:ycoord - 100 , left:xcoord - 300}).show();
 		});
 		$(".circ").mouseout(function() {
 			$("#main_tooltip").hide();

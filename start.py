@@ -72,7 +72,7 @@ def freq_by_time():
 	text = urllib.quote(request.form["text"])
 	ranges = []
 	cur_date = datetime.strptime("2007-10-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
-	end_date = datetime.strptime("2015-01-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
+	end_date = datetime.strptime("2016-04-01T23:59:59Z", "%Y-%m-%dT%H:%M:%SZ")
 	while cur_date < end_date:
 		ranges.append((cur_date, cur_date + relativedelta(months=1)))
 		cur_date = cur_date + relativedelta(months=1)
