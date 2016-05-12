@@ -55,8 +55,9 @@ $(document).ready(function() {
 		if (option == "subreddit_popularity" ||
 			option == "sentiment") {
 			$("#subredditdiv").show();
-			$("#SubredditPopularityExplanation").show();
-
+			if (option == "subreddit_popularity") {
+				$("#SubredditPopularityExplanation").show();
+			}
 		} else {
 			$("#subredditdiv").hide();
 		}
