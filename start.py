@@ -267,7 +267,7 @@ def sentiment():
 		query = '''SELECT body, score 
 		FROM 
 		(SELECT subreddit, body, score, RAND() AS r1
-		FROM [fh-bigquery:reddit_comments.''' + str(year_str) + ''']
+		FROM [fh-bigquery:reddit_comments.''' + year_str + ''']
 		WHERE subreddit == \"''' + subreddit + '''\"
 		AND body != "[deleted]"
 		AND body != "[removed]"
@@ -336,9 +336,9 @@ def sentiment_by_subreddit():
 
 	query = '''SELECT subreddit, body, score FROM
 	(SELECT subreddit, body, score, RAND() AS r1
-	FROM [fh-bigquery:reddit_comments.''' + str(year_str) + ''']
+	FROM [fh-bigquery:reddit_comments.''' + year_str + ''']
 	WHERE REGEXP_MATCH(body, r'(?i:''' + phrase + ''')')
-	AND subreddit IN (SELECT subreddit FROM (SELECT subreddit, count(*) AS c1 FROM [fh-bigquery:reddit_comments.''' + year + '''] WHERE REGEXP_MATCH(body, r'(?i:'''+phrase+''')') AND score > 1 GROUP BY subreddit ORDER BY c1 DESC LIMIT 10))
+	AND subreddit IN (SELECT subreddit FROM (SELECT subreddit, count(*) AS c1 FROM [fh-bigquery:reddit_comments.''' + year_str + '''] WHERE REGEXP_MATCH(body, r'(?i:'''+phrase+''')') AND score > 1 GROUP BY subreddit ORDER BY c1 DESC LIMIT 10))
 	ORDER BY r1
 	LIMIT 5000)
 	'''
