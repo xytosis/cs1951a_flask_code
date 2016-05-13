@@ -1,0 +1,4 @@
+The data we used unfortunately cannot be included with the report because it is far too large. Our Solr instance is at http://54.173.242.173:8983
+However, we have no guarantees how long we will keep the instance running, and it could be the case that by the time this is graded, we will have taken the instance down; we will try to keep it open until around the 20th.
+If you want to see the full dataset, it can be found https://bigquery.cloud.google.com/table/fh-bigquery:reddit_comments.2015_05
+You will need a Google cloud service account and a project that includes the BigQuery API in order to access the dataset.

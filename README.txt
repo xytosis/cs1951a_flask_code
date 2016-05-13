@@ -1,0 +1,7 @@
+This code is for our front end web application, and has dependencies on our backend infrastructure. We plan on taking down our Solr instance soon, so the code that depends on Solr may or may not work by the time this assignment is graded. Also, the code depends on being able to access Google BigQuery, which requires the person running it to make a Google Compute account and download a service key, and then set the environmental variable GOOGLE_APPLICATION_CREDENTIALS to the location of the service key.
+
+The set up process may be a bit labor intensive, but getting this code running is simple. If you've ever used python flask before, you know that each flask application has an environment file that stores the code dependencies for the project. Our dependencies have conveniently been stored in the cs1951a_env folder. Simply cd into the root of our directory, run "source cs1951a_env/bin/activate", and then launch the flask server with "python start.py". Then, you can connect to the server at localhost:5000. Without setting the google application credentials, this process will fail because Google will not be able to authenticate the program. However, if you'd like to play with our application, it is being hosted at:
+
+http://ec2-54-175-87-193.compute-1.amazonaws.com
+
+We will try to keep this running for a little while so the graders can access our web app.
