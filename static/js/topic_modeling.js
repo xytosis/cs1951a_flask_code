@@ -1,4 +1,4 @@
-function topic_modeling(data) {
+function topic_modeling(data, query) {
 
     var topics = [];
     for (var i = 0; i < data.length; i++) {
@@ -16,7 +16,8 @@ function topic_modeling(data) {
     var distance = 300;
     var center = 500;
     var radius = 120;
-    var svgContainer = d3.select("body").append("svg")
+
+    var svgContainer = d3.select("#main_viz").append("svg")
                                         .attr("width", 1000)
                                         .attr("height", 1000);
 
@@ -63,7 +64,7 @@ function topic_modeling(data) {
 
     //Circle Data Set
     var circleData = [
-      { "iftopic": "yes", "topicnumber": 1, "topic": "subreddit title" },
+      { "iftopic": "yes", "topicnumber": 1, "topic": query },
       { "iftopic": "yes", "topicnumber": 2, "topic": "Topic 1" },
       { "iftopic": "no", "topicnumber": 2, "topic": data[0][0] },
       { "iftopic": "no", "topicnumber": 2, "topic": data[0][1] },
@@ -114,7 +115,7 @@ function topic_modeling(data) {
                      .attr("x", function(d) { 
                               var x_coordinate;
                               console.log(d.topicnumber)
-                              if (d.topicnumber === 1) { x_coordinate = center-x_offset;
+                              if (d.topicnumber === 1) { x_coordinate = center-x_offset-25;
                               } else if (d.topicnumber === 2) { x_coordinate = center-x_offset;
                               } else if (d.topicnumber === 3) { x_coordinate = center-distance*Math.cos(0.244)-x_offset;
                               } else if (d.topicnumber === 4) { x_coordinate = center+distance*Math.cos(0.244)-x_offset;
