@@ -172,7 +172,7 @@ $(document).ready(function() {
 		if (yaxis == "topic_modeling"){
 			$.post("/topic_modeling", {"subreddit": subreddit, "year":year}, function(data) {
 				$("#loading").hide()
-				topic_modeling(JSON.parse(data));
+				topic_modeling(JSON.parse(data), text1);
 			});
 		}
 
