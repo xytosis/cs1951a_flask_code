@@ -545,7 +545,7 @@ def topic_modeling():
 	# Create p_stemmer of class PorterStemmer
 	p_stemmer = PorterStemmer()
 
-	topic_num = 10
+	topic_num = 5
 	# list for tokenized documents in loop
 	texts = []
 
